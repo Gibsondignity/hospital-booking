@@ -1,0 +1,251 @@
+{% extends 'dashboard/tailwind_base.html' %}
+
+{% block title %}Manage Doctors{% endblock %}
+
+{% block content %}
+<div class="pb-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-semibold text-gray-900">Doctor Management</h1>
+    <button type="button" onclick="toggleDoctorForm()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <i class="fas fa-plus mr-2"></i>
+      Add New Doctor
+    </button>
+  </div>
+
+  <!-- Add Doctor Form (Hidden by default) -->
+  <div id="doctor-form" class="bg-white shadow rounded-lg p-6 mb-8 hidden">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Add New Doctor</h2>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Doctor Name
+          </label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.name.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.specialty.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Specialty
+          </label>
+          {{ form.specialty }}
+          {% if form.specialty.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.specialty.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Title
+          </label>
+          {{ form.title }}
+          {% if form.title.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.title.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.hospital.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Hospital
+          </label>
+          {{ form.hospital }}
+          {% if form.hospital.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.hospital.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Bio
+          </label>
+          {{ form.bio }}
+          {% if form.bio.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.bio.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.education.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Education
+          </label>
+          {{ form.education }}
+          {% if form.education.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.education.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.experience.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Years of Experience
+          </label>
+          {{ form.experience }}
+          {% if form.experience.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.experience.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 pt-4">
+        <button type="button" onclick="toggleDoctorForm()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Cancel
+        </button>
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Add Doctor
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800">All Doctors</h2>
+    </div>
+    
+    {% if doctors %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialty</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hospital</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for doctor in doctors %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  {% if doctor.image %}
+                    <img class="h-10 w-10 rounded-full object-cover" src="{{ doctor.image }}" alt="{{ doctor.name }}">
+                  {% else %}
+                    <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <i class="fas fa-user-md text-indigo-600"></i>
+                    </div>
+                  {% endif %}
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ doctor.name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ doctor.specialty }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ doctor.hospital.name }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ doctor.experience }} years
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-3">
+                  <a href="#" class="text-indigo-600 hover:text-indigo-900" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="#" class="text-red-600 hover:text-red-900" title="Delete">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                  <a href="{% url 'doctor_profile' doctor.id %}" class="text-green-600 hover:text-green-900" title="View Profile">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+        <div class="text-sm text-gray-700">
+          Showing <span class="font-medium">{{ doctors|length }}</span> of <span class="font-medium">{{ doctors|length }}</span> doctors
+        </div>
+        <div class="flex space-x-2">
+          <button class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Previous
+          </button>
+          <button class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Next
+          </button>
+        </div>
+      </div>
+    {% else %}
+      <div class="text-center py-12">
+        <i class="fas fa-user-md text-gray-300 text-5xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">No doctors found</h3>
+        <p class="text-gray-500 mb-6">Get started by adding a new doctor.</p>
+        <button type="button" onclick="toggleDoctorForm()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-plus mr-2"></i>
+          Add Doctor
+        </button>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800">Recent Management Activities</h2>
+      <a href="#" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+        View All
+      </a>
+    </div>
+    
+    {% if management_activities %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for activity in management_activities %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {{ activity.doctor.name }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                  {% if activity.action == 'added' %}bg-green-100 text-green-800
+                  {% elif activity.action == 'updated' %}bg-blue-100 text-blue-800
+                  {% else %}bg-red-100 text-red-800{% endif %}">
+                  {{ activity.action|title }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ activity.manager.username }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ activity.timestamp|date:"M d, Y H:i" }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-8">
+        <i class="fas fa-history text-gray-300 text-4xl mb-4"></i>
+        <p class="text-gray-600">No recent management activities.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function toggleDoctorForm() {
+    const form = document.getElementById('doctor-form');
+    form.classList.toggle('hidden');
+  }
+</script>
+{% endblock %}

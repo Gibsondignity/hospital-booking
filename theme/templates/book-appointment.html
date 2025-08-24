@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment - Streamline Care </title>
+  <meta name="description" content="Schedule an appointment with a specialist">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container-custom navbar-container">
+        <a href="index.html" class="navbar-logo">
+          <i class="fas fa-hospital text-primary"></i>
+          <span class="text-xl font-bold text-gray-900"> Streamline Care </span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-nav">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="hospitals.html">Hospitals</a></li>
+            <li><a href="book-appointment.html">Book Appointment</a></li>
+          </ul>
+        </div>
+
+        <div class="hidden md:block">
+          <a href="book-appointment.html" class="btn-primary">
+            <i class="far fa-calendar-alt mr-2"></i>
+            <span>Book Now</span>
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="navbar-toggle" class="navbar-toggle md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="navbar-mobile" class="navbar-mobile">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="hospitals.html">Hospitals</a></li>
+          <li><a href="book-appointment.html">Book Appointment</a></li>
+          <li><a href="book-appointment.html" class="btn-primary text-center">Book Now</a></li>
+        </ul>
+      </div>
+    </nav>
+    
+    <!-- Page Header -->
+    <section class="bg-primary/10 py-12">
+      <div class="container-custom">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          Book an Appointment
+        </h1>
+        <p class="text-lg text-gray-600 max-w-3xl">
+          Schedule a consultation with one of our specialists at your preferred hospital in Ghana. Fill out the form below to book your appointment.
+        </p>
+      </div>
+    </section>
+    
+    <!-- Process Steps -->
+    <section class="py-10 border-b">
+      <div class="container-custom">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div class="flex items-center mb-6 md:mb-0">
+            <div class="bg-primary h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold mr-3">1</div>
+            <div>
+              <h3 class="font-medium">Fill Details</h3>
+              <p class="text-sm text-gray-500">Enter your information</p>
+            </div>
+          </div>
+          <div class="hidden md:block w-20 h-0.5 bg-gray-200"></div>
+          <div class="flex items-center mb-6 md:mb-0">
+            <div class="bg-gray-200 h-10 w-10 rounded-full flex items-center justify-center text-gray-700 font-semibold mr-3">2</div>
+            <div>
+              <h3 class="font-medium">Confirmation</h3>
+              <p class="text-sm text-gray-500">Verify your booking</p>
+            </div>
+          </div>
+          <div class="hidden md:block w-20 h-0.5 bg-gray-200"></div>
+          <div class="flex items-center">
+            <div class="bg-gray-200 h-10 w-10 rounded-full flex items-center justify-center text-gray-700 font-semibold mr-3">3</div>
+            <div>
+              <h3 class="font-medium">Complete</h3>
+              <p class="text-sm text-gray-500">Appointment booked</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Booking Section -->
+    <section class="py-12">
+      <div class="container-custom">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Form -->
+          <div class="lg:col-span-2">
+            <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100">
+              <h2 class="text-2xl font-semibold mb-6">Appointment Details</h2>
+              <form id="appointment-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="form-group">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input
+                      id="fullName"
+                      name="fullName"
+                      type="text"
+                      class="input"
+                      required
+                    />
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      class="input"
+                      required
+                    />
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      class="input"
+                      required
+                    />
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="hospitalId" class="form-label">Select Hospital</label>
+                    <select
+                      id="hospitalId"
+                      name="hospitalId"
+                      class="select"
+                      required
+                    >
+                      <option value="">Select a hospital</option>
+                      <!-- Hospital options will be dynamically populated -->
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="doctorId" class="form-label">Select Doctor</label>
+                    <select
+                      id="doctorId"
+                      name="doctorId"
+                      class="select"
+                      required
+                      disabled
+                    >
+                      <option value="">Select a doctor</option>
+                      <!-- Doctor options will be dynamically populated -->
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="date" class="form-label">Select Date</label>
+                    <div class="relative">
+                      <input
+                        id="date"
+                        name="date"
+                        type="date"
+                        class="input"
+                        required
+                        disabled
+                      />
+                      <i class="far fa-calendar-alt absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                    <p id="available-days" class="text-xs text-gray-500 mt-1 hidden">
+                      Doctor available on: <span id="days-list"></span>
+                    </p>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="time" class="form-label">Select Time</label>
+                    <select
+                      id="time"
+                      name="time"
+                      class="select"
+                      required
+                      disabled
+                    >
+                      <option value="">Select a time</option>
+                      <!-- Time options will be dynamically populated -->
+                    </select>
+                  </div>
+                  
+                  <div class="form-group md:col-span-2">
+                    <label for="reason" class="form-label">Reason for Visit</label>
+                    <textarea
+                      id="reason"
+                      name="reason"
+                      class="textarea"
+                      required
+                      rows="4"
+                    ></textarea>
+                  </div>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full" id="submit-btn" disabled>
+                  Book Appointment
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Sidebar -->
+          <div class="lg:col-span-1">
+            <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100 mb-6">
+              <h3 class="text-xl font-semibold mb-4">How It Works</h3>
+              <div class="space-y-4">
+                <div class="flex">
+                  <div class="mr-4 mt-1">
+                    <div class="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <i class="far fa-calendar-alt text-primary"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="font-medium">Select Date & Time</h4>
+                    <p class="text-sm text-gray-600">Choose a convenient date and time for your appointment</p>
+                  </div>
+                </div>
+                
+                <div class="flex">
+                  <div class="mr-4 mt-1">
+                    <div class="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <i class="far fa-clock text-primary"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="font-medium">Get Confirmation</h4>
+                    <p class="text-sm text-gray-600">Receive an email and SMS confirmation of your booking</p>
+                  </div>
+                </div>
+                
+                <div class="flex">
+                  <div class="mr-4 mt-1">
+                    <div class="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <i class="fas fa-check-circle text-primary"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="font-medium">Visit the Hospital</h4>
+                    <p class="text-sm text-gray-600">Arrive at your appointment time and meet with your doctor</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-6">
+              <h3 class="text-lg font-semibold mb-4">Need Assistance?</h3>
+              <p class="text-gray-600 mb-4">
+                If you need help with your booking, please contact our support team:
+              </p>
+              <div class="space-y-2">
+                <p class="text-gray-700">
+                  <span class="font-medium">Phone:</span> +233 30 000 0000
+                </p>
+                <p class="text-gray-700">
+                  <span class="font-medium">Email:</span> support@afyabooking.com
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container-custom">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo">
+              <i class="fas fa-hospital text-primary"></i>
+              <span class="text-xl font-bold">Afya Booking</span>
+            </div>
+            <p class="text-gray-300 mb-4">
+              Making healthcare accessible to all Ghanaians through simplified consultation bookings.
+            </p>
+          </div>
+          
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="hospitals.html">Hospitals</a></li>
+              <li><a href="book-appointment.html">Book Appointment</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><span class="text-gray-300">Online Consultation</span></li>
+              <li><span class="text-gray-300">Hospital Directory</span></li>
+              <li><span class="text-gray-300">Doctor Profiles</span></li>
+              <li><span class="text-gray-300">Medical Equipment Information</span></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Contact</h4>
+            <ul class="space-y-3">
+              <li class="footer-contact">
+                <i class="fas fa-map-marker-alt text-primary"></i>
+                <span class="text-gray-300">Accra, Ghana</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-phone text-primary"></i>
+                <span class="text-gray-300">+233 30 000 0000</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-envelope text-primary"></i>
+                <span class="text-gray-300">info@afyabooking.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p class="text-gray-400 text-sm">
+            &copy; <span id="current-year"></span> Afya Booking. All rights reserved.
+          </p>
+          <div class="footer-bottom-links">
+            <a href="#" class="text-gray-400">Terms</a>
+            <a href="#" class="text-gray-400">Privacy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js" defer></script>
+  <script src="book-appointment.js" defer></script>
+</body>
+</html>

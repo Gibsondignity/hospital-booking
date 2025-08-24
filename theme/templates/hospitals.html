@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospitals - Afya Booking</title>
+  <meta name="description" content="Find and browse hospitals in Ghana">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container-custom navbar-container">
+        <a href="index.html" class="navbar-logo">
+          <i class="fas fa-hospital text-primary"></i>
+          <span class="text-xl font-bold text-gray-900">Afya Booking</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-nav">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="hospitals.html">Hospitals</a></li>
+            <li><a href="book-appointment.html">Book Appointment</a></li>
+          </ul>
+        </div>
+
+        <div class="hidden md:block">
+          <a href="book-appointment.html" class="btn-primary">
+            <i class="far fa-calendar-alt mr-2"></i>
+            <span>Book Now</span>
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="navbar-toggle" class="navbar-toggle md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="navbar-mobile" class="navbar-mobile">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="hospitals.html">Hospitals</a></li>
+          <li><a href="book-appointment.html">Book Appointment</a></li>
+          <li><a href="book-appointment.html" class="btn-primary text-center">Book Now</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-primary/10 py-12">
+      <div class="container-custom">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          Hospitals in Ghana
+        </h1>
+        <p class="text-lg text-gray-600 max-w-3xl">
+          Browse through our directory of leading hospitals in Ghana. Find detailed information about facilities, medical equipment, and available specialists.
+        </p>
+      </div>
+    </section>
+      
+    <!-- Search and Filter Section -->
+    <section class="py-8 border-b">
+      <div class="container-custom">
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="md:w-2/3 relative">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search hospitals by name or description..."
+              class="input pl-10"
+            >
+          </div>
+          <div class="md:w-1/3">
+            <select
+              id="location-filter"
+              class="select"
+            >
+              <option value="">All Locations</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hospitals Listing -->
+    <section class="py-12 flex-grow">
+      <div class="container-custom">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="hospitals-container">
+          <!-- Hospital cards will be dynamically inserted here -->
+        </div>
+        <div id="no-results" class="text-center py-16 hidden">
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">No hospitals found</h3>
+          <p class="text-gray-500">
+            Try adjusting your search or filters to find what you're looking for.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container-custom">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo">
+              <i class="fas fa-hospital text-primary"></i>
+              <span class="text-xl font-bold">Afya Booking</span>
+            </div>
+            <p class="text-gray-300 mb-4">
+              Making healthcare accessible to all Ghanaians through simplified consultation bookings.
+            </p>
+          </div>
+          
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="hospitals.html">Hospitals</a></li>
+              <li><a href="book-appointment.html">Book Appointment</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><span class="text-gray-300">Online Consultation</span></li>
+              <li><span class="text-gray-300">Hospital Directory</span></li>
+              <li><span class="text-gray-300">Doctor Profiles</span></li>
+              <li><span class="text-gray-300">Medical Equipment Information</span></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Contact</h4>
+            <ul class="space-y-3">
+              <li class="footer-contact">
+                <i class="fas fa-map-marker-alt text-primary"></i>
+                <span class="text-gray-300">Accra, Ghana</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-phone text-primary"></i>
+                <span class="text-gray-300">+233 30 000 0000</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-envelope text-primary"></i>
+                <span class="text-gray-300">info@afyabooking.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p class="text-gray-400 text-sm">
+            &copy; <span id="current-year"></span> Afya Booking. All rights reserved.
+          </p>
+          <div class="footer-bottom-links">
+            <a href="#" class="text-gray-400">Terms</a>
+            <a href="#" class="text-gray-400">Privacy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set copyright year
+      document.getElementById('current-year').innerText = new Date().getFullYear();
+      
+      const searchInput = document.getElementById('search-input');
+      const locationFilter = document.getElementById('location-filter');
+      const hospitalsContainer = document.getElementById('hospitals-container');
+      const noResults = document.getElementById('no-results');
+      
+      // Extract unique locations
+      const locations = [...new Set(hospitals.map(hospital => hospital.location))];
+      
+      // Populate location filter
+      locations.forEach(location => {
+        const option = document.createElement('option');
+        option.value = location;
+        option.textContent = location;
+        locationFilter.appendChild(option);
+      });
+      
+      // Function to filter hospitals
+      function filterHospitals() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedLocation = locationFilter.value;
+        
+        const filteredHospitals = hospitals.filter(hospital => {
+          const matchesSearch = hospital.name.toLowerCase().includes(searchTerm) || 
+                               hospital.description.toLowerCase().includes(searchTerm);
+          const matchesLocation = selectedLocation ? hospital.location === selectedLocation : true;
+          return matchesSearch && matchesLocation;
+        });
+        
+        // Display filtered hospitals or no results message
+        if (filteredHospitals.length > 0) {
+          hospitalsContainer.innerHTML = filteredHospitals.map(hospital => `
+            <a href="hospital-detail.html?id=${hospital.id}" class="hospital-card">
+              <div class="card-image">
+                <img src="${hospital.image}" alt="${hospital.name}">
+              </div>
+              <div class="card-content">
+                <h3 class="card-title">${hospital.name}</h3>
+                <div class="card-detail">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>${hospital.location}</span>
+                </div>
+                <div class="card-detail">
+                  <i class="fas fa-phone"></i>
+                  <span>${hospital.phoneNumber}</span>
+                </div>
+                <p class="card-description">${hospital.description}</p>
+                <div class="card-footer">
+                  <span class="card-link">View Details &rarr;</span>
+                </div>
+              </div>
+            </a>
+          `).join('');
+          hospitalsContainer.style.display = 'grid';
+          noResults.style.display = 'none';
+        } else {
+          hospitalsContainer.style.display = 'none';
+          noResults.style.display = 'block';
+        }
+      }
+      
+      // Initial hospital display
+      filterHospitals();
+      
+      // Event listeners for search and filter
+      searchInput.addEventListener('input', filterHospitals);
+      locationFilter.addEventListener('change', filterHospitals);
+    });
+  </script>
+</body>
+</html>

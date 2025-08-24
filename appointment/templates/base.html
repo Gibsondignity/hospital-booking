@@ -1,0 +1,190 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afya Booking - Hospital Consultation Booking</title>
+  <meta name="description" content="Book hospital consultations in Ghana easily through Afya Booking">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container-custom navbar-container">
+        <a href="{% url 'index' %}" class="navbar-logo">
+          <i class="fas fa-hospital text-primary"></i>
+          <span class="text-xl font-bold text-gray-900">Streamline Care</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-nav">
+          <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'hospitals' %}">Hospitals</a></li>
+            <li><a href="{% url 'book_appointment' %}">Book Appointment</a></li>
+            
+              {% comment %} <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+              <li><a href="{% url 'profile' %}">Profile</a></li> {% endcomment %}
+            
+              <li><a href="{% url 'login' %}">Login</a></li>
+              {% comment %} <li><a href="{% url 'register' %}">Register</a></li> {% endcomment %}
+            
+          </ul>
+        </div>
+
+        <div class="hidden md:block">
+          {% comment %} {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn-primary mr-2">
+              <i class="fas fa-tachometer-alt mr-2"></i>
+              <span>Dashboard</span>
+            </a>
+            <a href="{% url 'profile' %}" class="btn-outline mr-2">
+              <i class="fas fa-user mr-2"></i>
+              <span>Profile</span>
+            </a>
+          {% endif %} {% endcomment %}
+          <a href="{% url 'book_appointment' %}" class="btn-primary">
+            <i class="far fa-calendar-alt mr-2"></i>
+            <span>Book Now</span>
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="navbar-toggle" class="navbar-toggle md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="navbar-mobile" class="navbar-mobile">
+        <ul>
+          <li><a href="{% url 'index' %}">Home</a></li>
+          <li><a href="{% url 'hospitals' %}">Hospitals</a></li>
+          <li><a href="{% url 'book_appointment' %}">Book Appointment</a></li>
+          
+            {% comment %} <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li> {% endcomment %}
+          
+            <li><a href="{% url 'login' %}">Login</a></li>
+            {% comment %} <li><a href="{% url 'register' %}">Register</a></li> {% endcomment %}
+          
+          <li><a href="{% url 'book_appointment' %}" class="btn-primary text-center">Book Now</a></li>
+        </ul>
+      </div>
+    </nav>
+    
+    {% block content %}
+    {% endblock %}
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container-custom">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo">
+              <i class="fas fa-hospital text-primary"></i>
+              <span class="text-xl font-bold">Afya Booking</span>
+            </div>
+            <p class="text-gray-300 mb-4">
+              Making healthcare accessible to all Ghanaians through simplified consultation bookings.
+            </p>
+          </div>
+          
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="{% url 'index' %}">Home</a></li>
+              <li><a href="{% url 'hospitals' %}">Hospitals</a></li>
+              <li><a href="{% url 'book_appointment' %}">Book Appointment</a></li>
+              {% if user.is_authenticated %}
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+              {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+              {% endif %}
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><span class="text-gray-300">Online Consultation</span></li>
+              <li><span class="text-gray-300">Hospital Directory</span></li>
+              <li><span class="text-gray-300">Doctor Profiles</span></li>
+              <li><span class="text-gray-300">Medical Equipment Information</span></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Contact</h4>
+            <ul class="space-y-3">
+              <li class="footer-contact">
+                <i class="fas fa-map-marker-alt text-primary"></i>
+                <span class="text-gray-300">Accra, Ghana</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-phone text-primary"></i>
+                <span class="text-gray-300">+233 30 000 0000</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-envelope text-primary"></i>
+                <span class="text-gray-300">info@afyabooking.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p class="text-gray-400 text-sm">
+            &copy; <span id="current-year"></span> Afya Booking. All rights reserved.
+          </p>
+          <div class="footer-bottom-links">
+            <a href="#" class="text-gray-400">Terms</a>
+            <a href="#" class="text-gray-400">Privacy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set copyright year
+      document.getElementById('current-year').innerText = new Date().getFullYear();
+      
+      // Display featured hospitals
+      const featuredHospitalsContainer = document.getElementById('featured-hospitals');
+      const featuredHospitals = hospitals.slice(0, 3);
+      
+      featuredHospitalsContainer.innerHTML = featuredHospitals.map(hospital => `
+        <a href="hospital-detail.html?id=${hospital.id}" class="hospital-card">
+          <div class="card-image">
+            <img src="${hospital.image}" alt="${hospital.name}">
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">${hospital.name}</h3>
+            <div class="card-detail">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>${hospital.location}</span>
+            </div>
+            <div class="card-detail">
+              <i class="fas fa-phone"></i>
+              <span>${hospital.phoneNumber}</span>
+            </div>
+            <p class="card-description">${hospital.description}</p>
+            <div class="card-footer">
+              <span class="card-link">View Details &rarr;</span>
+            </div>
+          </div>
+        </a>
+      `).join('');
+      
+    });
+  </script>
+</body>
+</html>

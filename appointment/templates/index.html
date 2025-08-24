@@ -1,0 +1,80 @@
+
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+
+{% block title %}Streamline Care - Hospital Consultation Booking{% endblock %}
+
+{% block content %}
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container-custom">
+        <div class="flex flex-col md:flex-row items-center">
+          <div class="md:w-1/2 mb-10 md:mb-0">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">
+              Book Your Hospital Consultation With Ease
+            </h1>
+            <p class="text-lg mb-8">
+              Connect with leading hospitals and medical specialists in Ghana for non-emergency consultations. Schedule appointments online and get the care you need.
+            </p>
+            <div class="flex flex-wrap gap-4">
+              <a href="{% url 'book_appointment' %}" class="btn-primary bg-white text-primary text-base px-6 py-6">
+                Book an Appointment
+              </a>
+              <a href="{% url 'hospitals' %}" class="btn-outline bg-transparent border-white hover:bg-white/10 text-base px-6 py-6">
+                Explore Hospitals
+              </a>
+            </div>
+          </div>
+          <div class="md:w-1/2 md:pl-10">
+            <img
+              src="{% static 'images/blue-stethoscope-with-telemedicine-concept.jpg' %}"
+              alt="Doctor consultation"
+              class="rounded-lg shadow-2xl w-full max-w-md mx-auto"
+              
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    
+     
+    <!-- Featured Hospitals -->
+    <section class="py-16">
+      <div class="container-custom">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="section-title mb-0">Featured Hospitals</h2>
+          <a href="{% url 'hospitals' %}" class="text-primary hover:underline">
+            View all hospitals &rarr;
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="featured-hospitals">
+          <!-- Hospital cards will be dynamically inserted here -->
+        </div>
+      </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="py-16 bg-secondary">
+      <div class="container-custom text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+          Ready to Book Your Consultation?
+        </h2>
+        <p class="text-lg max-w-2xl mx-auto mb-8 text-white">
+          Take the first step towards better healthcare management. Book your appointment with top specialists in Ghana.
+        </p>
+        <a href="{% url 'book_appointment' %}" class="btn-primary bg-white text-secondary text-lg px-8 py-6">
+          Book Appointment Now
+        </a>
+      </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Set copyright year
+  document.getElementById('current-year').innerText = new Date().getFullYear();
+</script>
+{% endblock %}

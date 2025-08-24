@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Profile - Afya Booking</title>
+  <meta name="description" content="View doctor profile and availability">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container-custom navbar-container">
+        <a href="index.html" class="navbar-logo">
+          <i class="fas fa-hospital text-primary"></i>
+          <span class="text-xl font-bold text-gray-900">Afya Booking</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-nav">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="hospitals.html">Hospitals</a></li>
+            <li><a href="book-appointment.html">Book Appointment</a></li>
+          </ul>
+        </div>
+
+        <div class="hidden md:block">
+          <a href="book-appointment.html" class="btn-primary">
+            <i class="far fa-calendar-alt mr-2"></i>
+            <span>Book Now</span>
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="navbar-toggle" class="navbar-toggle md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="navbar-mobile" class="navbar-mobile">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="hospitals.html">Hospitals</a></li>
+          <li><a href="book-appointment.html">Book Appointment</a></li>
+          <li><a href="book-appointment.html" class="btn-primary text-center">Book Now</a></li>
+        </ul>
+      </div>
+    </nav>
+    
+    <div class="container-custom py-12">
+      <div class="mb-10">
+        <a href="hospitals.html" class="text-primary hover:underline">
+          &larr; Back to Hospitals
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" id="doctor-profile">
+        <!-- Will be dynamically populated -->
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container-custom">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo">
+              <i class="fas fa-hospital text-primary"></i>
+              <span class="text-xl font-bold">Afya Booking</span>
+            </div>
+            <p class="text-gray-300 mb-4">
+              Making healthcare accessible to all Ghanaians through simplified consultation bookings.
+            </p>
+          </div>
+          
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="hospitals.html">Hospitals</a></li>
+              <li><a href="book-appointment.html">Book Appointment</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><span class="text-gray-300">Online Consultation</span></li>
+              <li><span class="text-gray-300">Hospital Directory</span></li>
+              <li><span class="text-gray-300">Doctor Profiles</span></li>
+              <li><span class="text-gray-300">Medical Equipment Information</span></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Contact</h4>
+            <ul class="space-y-3">
+              <li class="footer-contact">
+                <i class="fas fa-map-marker-alt text-primary"></i>
+                <span class="text-gray-300">Accra, Ghana</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-phone text-primary"></i>
+                <span class="text-gray-300">+233 30 000 0000</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-envelope text-primary"></i>
+                <span class="text-gray-300">info@afyabooking.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p class="text-gray-400 text-sm">
+            &copy; <span id="current-year"></span> Afya Booking. All rights reserved.
+          </p>
+          <div class="footer-bottom-links">
+            <a href="#" class="text-gray-400">Terms</a>
+            <a href="#" class="text-gray-400">Privacy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set copyright year
+      document.getElementById('current-year').innerText = new Date().getFullYear();
+      
+      // Get doctor ID from URL
+      const doctorId = getUrlParameter('id');
+      const doctor = doctors.find(d => d.id === doctorId);
+      
+      if (!doctor) {
+        window.location.href = '404.html';
+        return;
+      }
+      
+      // Find hospital where doctor works
+      const hospital = hospitals.find(h => h.id === doctor.hospitalId);
+      
+      // Update page title
+      document.title = `Dr. ${doctor.name} - Afya Booking`;
+      
+      // Get available days
+      const availableDays = Object.keys(doctor.availability);
+      
+      // Populate doctor profile
+      const doctorProfile = document.getElementById('doctor-profile');
+      doctorProfile.innerHTML = `
+        <!-- Left Column - Doctor Info -->
+        <div class="lg:col-span-1">
+          <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-100">
+            <div class="h-60 w-full">
+              ${doctor.image 
+                ? `<img src="${doctor.image}" alt="${doctor.name}" class="w-full h-full object-cover">`
+                : `<div class="w-full h-full flex items-center justify-center bg-gray-100">
+                    <i class="fas fa-user text-gray-400 text-5xl"></i>
+                  </div>`
+              }
+            </div>
+            
+            <div class="p-6">
+              <h1 class="text-2xl font-bold text-gray-900">${doctor.name}</h1>
+              <p class="text-primary font-medium">${doctor.specialty}</p>
+              <p class="text-gray-600 mb-4">${doctor.title}</p>
+              
+              <div class="flex items-center mb-6">
+                <i class="fas fa-award text-yellow-500 mr-2"></i>
+                <span class="text-gray-600">${doctor.experience} years experience</span>
+              </div>
+              
+              <a href="book-appointment.html" class="btn-primary w-full block text-center">Book Appointment</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column - Details -->
+        <div class="lg:col-span-2">
+          <div class="bg-white shadow-md rounded-lg p-6 mb-8 border border-gray-100">
+            <h2 class="text-2xl font-semibold mb-4">About</h2>
+            <p class="text-gray-700">${doctor.bio}</p>
+            
+            <div class="mt-6">
+              <div class="flex items-start mb-4">
+                <i class="fas fa-book-open text-primary mr-3 mt-1"></i>
+                <div>
+                  <h3 class="font-medium">Education</h3>
+                  <p class="text-gray-600">${doctor.education}</p>
+                </div>
+              </div>
+              
+              ${hospital ? `
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-hospital text-primary mr-3"></i>
+                  <div>
+                    <h3 class="font-medium">Hospital</h3>
+                    <p class="text-gray-600">${hospital.name}</p>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+          
+          <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100">
+            <div class="flex items-center mb-4">
+              <i class="far fa-calendar-alt text-primary mr-3"></i>
+              <h2 class="text-2xl font-semibold">Availability</h2>
+            </div>
+            
+            <div class="space-y-4">
+              ${availableDays.map(day => `
+                <div class="border-b pb-3">
+                  <h3 class="font-medium mb-2">${day}</h3>
+                  <div class="flex flex-wrap gap-2">
+                    ${doctor.availability[day].map(time => `
+                      <span class="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700">
+                        <i class="far fa-clock mr-1 text-xs"></i>
+                        ${time}
+                      </span>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="mt-6 pt-4 border-t">
+              <p class="text-gray-600 text-sm">
+                To schedule an appointment with ${doctor.name}, please use our online booking system or contact the hospital directly.
+              </p>
+              <div class="mt-4">
+                <a href="book-appointment.html" class="btn-primary">Book an Appointment</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>

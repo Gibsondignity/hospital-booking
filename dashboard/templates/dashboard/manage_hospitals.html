@@ -1,0 +1,239 @@
+{% extends 'dashboard/tailwind_base.html' %}
+
+{% block title %}Manage Hospitals{% endblock %}
+
+{% block content %}
+<div class="pb-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-semibold text-gray-900">Hospital Management</h1>
+    <button type="button" onclick="toggleHospitalForm()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <i class="fas fa-plus mr-2"></i>
+      Add New Hospital
+    </button>
+  </div>
+
+  <!-- Add Hospital Form (Hidden by default) -->
+  <div id="hospital-form" class="bg-white shadow rounded-lg p-6 mb-8 hidden">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Add New Hospital</h2>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Hospital Name
+          </label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.name.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.location.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Location
+          </label>
+          {{ form.location }}
+          {% if form.location.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.location.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Address
+          </label>
+          {{ form.address }}
+          {% if form.address.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.address.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Phone Number
+          </label>
+          {{ form.phone_number }}
+          {% if form.phone_number.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.phone_number.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div>
+          <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.email.errors }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.description.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 pt-4">
+        <button type="button" onclick="toggleHospitalForm()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Cancel
+        </button>
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Add Hospital
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800">All Hospitals</h2>
+    </div>
+    
+    {% if hospitals %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hospital</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctors</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for hospital in hospitals %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <i class="fas fa-hospital text-indigo-600"></i>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ hospital.name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ hospital.location }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ hospital.phone_number }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                  {{ hospital.doctor_set.count }} doctors
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-3">
+                  <a href="#" class="text-indigo-600 hover:text-indigo-900" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="#" class="text-red-600 hover:text-red-900" title="Delete">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                  <a href="{% url 'hospital_detail' hospital.id %}" class="text-green-600 hover:text-green-900" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+        <div class="text-sm text-gray-700">
+          Showing <span class="font-medium">{{ hospitals|length }}</span> of <span class="font-medium">{{ hospitals|length }}</span> hospitals
+        </div>
+        <div class="flex space-x-2">
+          <button class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Previous
+          </button>
+          <button class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Next
+          </button>
+        </div>
+      </div>
+    {% else %}
+      <div class="text-center py-12">
+        <i class="fas fa-hospital text-gray-300 text-5xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">No hospitals found</h3>
+        <p class="text-gray-500 mb-6">Get started by adding a new hospital.</p>
+        <button type="button" onclick="toggleHospitalForm()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-plus mr-2"></i>
+          Add Hospital
+        </button>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800">Recent Management Activities</h2>
+      <a href="#" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+        View All
+      </a>
+    </div>
+    
+    {% if management_activities %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hospital</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for activity in management_activities %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {{ activity.hospital.name }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                  {% if activity.action == 'added' %}bg-green-100 text-green-800
+                  {% elif activity.action == 'updated' %}bg-blue-100 text-blue-800
+                  {% else %}bg-red-100 text-red-800{% endif %}">
+                  {{ activity.action|title }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ activity.manager.username }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ activity.timestamp|date:"M d, Y H:i" }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-8">
+        <i class="fas fa-history text-gray-300 text-4xl mb-4"></i>
+        <p class="text-gray-600">No recent management activities.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function toggleHospitalForm() {
+    const form = document.getElementById('hospital-form');
+    form.classList.toggle('hidden');
+  }
+</script>
+{% endblock %}

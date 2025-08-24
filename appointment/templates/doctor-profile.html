@@ -1,0 +1,112 @@
+
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+
+{% block title %}Dr. {{ doctor.name }} - Streamline Care{% endblock %}
+
+{% block content %}
+    <div class="container-custom py-12">
+      <div class="mb-10">
+        <a href="{% url 'hospitals' %}" class="text-primary hover:underline">
+          &larr; Back to Hospitals
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Doctor Info -->
+        <div class="lg:col-span-1">
+          <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-100">
+            <div class="h-60 w-full">
+              {% if doctor.image %}
+                <img src="{{ doctor.image }}" alt="{{ doctor.name }}" class="w-full h-full object-cover">
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                  <i class="fas fa-user text-gray-400 text-5xl"></i>
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="p-6">
+              <h1 class="text-2xl font-bold text-gray-900">{{ doctor.name }}</h1>
+              <p class="text-primary font-medium">{{ doctor.specialty }}</p>
+              <p class="text-gray-600 mb-4">{{ doctor.title }}</p>
+              
+              <div class="flex items-center mb-6">
+                <i class="fas fa-award text-yellow-500 mr-2"></i>
+                <span class="text-gray-600">{{ doctor.experience }} years experience</span>
+              </div>
+              
+              <a href="{% url 'book_appointment' %}" class="btn-primary w-full block text-center">Book Appointment</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column - Details -->
+        <div class="lg:col-span-2">
+          <div class="bg-white shadow-md rounded-lg p-6 mb-8 border border-gray-100">
+            <h2 class="text-2xl font-semibold mb-4">About</h2>
+            <p class="text-gray-700">{{ doctor.bio }}</p>
+            
+            <div class="mt-6">
+              <div class="flex items-start mb-4">
+                <i class="fas fa-book-open text-primary mr-3 mt-1"></i>
+                <div>
+                  <h3 class="font-medium">Education</h3>
+                  <p class="text-gray-600">{{ doctor.education }}</p>
+                </div>
+              </div>
+              
+              {% if hospital %}
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-hospital text-primary mr-3"></i>
+                  <div>
+                    <h3 class="font-medium">Hospital</h3>
+                    <p class="text-gray-600">{{ hospital.name }}</p>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100">
+            <div class="flex items-center mb-4">
+              <i class="far fa-calendar-alt text-primary mr-3"></i>
+              <h2 class="text-2xl font-semibold">Availability</h2>
+            </div>
+            
+            <div class="space-y-4">
+              {% for day, times in doctor.get_availability.items %}
+                <div class="border-b pb-3">
+                  <h3 class="font-medium mb-2">{{ day }}</h3>
+                  <div class="flex flex-wrap gap-2">
+                    {% for time in times %}
+                      <span class="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700">
+                        <i class="far fa-clock mr-1 text-xs"></i>
+                        {{ time }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            
+            <div class="mt-6 pt-4 border-t">
+              <p class="text-gray-600 text-sm">
+                To schedule an appointment with {{ doctor.name }}, please use our online booking system or contact the hospital directly.
+              </p>
+              <div class="mt-4">
+                <a href="{% url 'book_appointment' %}" class="btn-primary">Book an Appointment</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Set copyright year
+  document.getElementById('current-year').innerText = new Date().getFullYear();
+</script>
+{% endblock %}

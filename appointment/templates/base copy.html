@@ -1,0 +1,208 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Streamline Care{% endblock %}</title>
+  <meta name="description" content="Book hospital consultations in Ghana easily through Streamline Care">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  {% tailwind_css %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <div class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    {% comment %} <nav class="navbar">
+      <div class="container-custom navbar-container">
+        <a href="{% url 'index' %}" class="navbar-logo">
+          <i class="fas fa-hospital text-primary"></i>
+          <span class="text-xl font-bold text-gray-900">Streamline Care</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-nav">
+          <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'hospitals' %}">Hospitals</a></li>
+            <li><a href="{% url 'book_appointment' %}">Book Appointment</a></li>
+          </ul>
+        </div>
+
+        <div class="hidden md:block">
+          {% if user.is_authenticated %}
+            <a href="{% url 'dashboard:dashboard' %}" class="btn-primary mr-2">
+              <i class="fas fa-tachometer-alt mr-2"></i>
+              <span>Dashboard</span>
+            </a>
+            <a href="{% url 'profile' %}" class="btn-outline mr-2">
+              <i class="fas fa-user mr-2"></i>
+              <span>Profile</span>
+            </a>
+          {% else %}
+            <a href="{% url 'register' %}" class="btn-primary mr-2">
+              <i class="fas fa-user-plus mr-2"></i>
+              <span>Register</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'book_appointment' %}" class="btn-primary">
+            <i class="far fa-calendar-alt mr-2"></i>
+            <span>Book Now</span>
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="navbar-toggle" class="navbar-toggle md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="navbar-mobile" class="navbar-mobile">
+        <ul>
+          <li><a href="{% url 'index' %}">Home</a></li>
+          <li><a href="{% url 'hospitals' %}">Hospitals</a></li>
+          <li><a href="{% url 'book_appointment' %}">Book Appointment</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'dashboard:dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+          {% else %}
+            <li><a href="{% url 'register' %}">Register</a></li>
+          {% endif %}
+          <li><a href="{% url 'book_appointment' %}" class="btn-primary text-center">Book Now</a></li>
+        </ul>
+      </div>
+    </nav> {% endcomment %}
+
+    <nav class="navbar">
+      <div class="container-custom navbar-container">
+        <a href="index.html" class="navbar-logo">
+          <i class="fas fa-hospital text-primary"></i>
+          <span class="text-xl font-bold text-gray-900">Streamline Care</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-nav">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="hospitals.html">Hospitals</a></li>
+            <li><a href="book-appointment.html">Book Appointment</a></li>
+          </ul>
+        </div>
+
+        <div class="hidden md:block">
+          <a href="book-appointment.html" class="btn-primary">
+            <i class="far fa-calendar-alt mr-2"></i>
+            <span>Book Now</span>
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="navbar-toggle" class="navbar-toggle md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="navbar-mobile" class="navbar-mobile">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="hospitals.html">Hospitals</a></li>
+          <li><a href="book-appointment.html">Book Appointment</a></li>
+          <li><a href="book-appointment.html" class="btn-primary text-center">Book Now</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <div class="container-custom">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container-custom">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo">
+              <i class="fas fa-hospital text-primary"></i>
+              <span class="text-xl font-bold">Streamline Care</span>
+            </div>
+            <p class="text-gray-300 mb-4">
+              Making healthcare accessible to all Ghanaians through simplified consultation bookings.
+            </p>
+          </div>
+          
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="{% url 'index' %}">Home</a></li>
+              <li><a href="{% url 'hospitals' %}">Hospitals</a></li>
+              <li><a href="{% url 'book_appointment' %}">Book Appointment</a></li>
+              {% if user.is_authenticated %}
+                <li><a href="{% url 'dashboard:dashboard' %}">Dashboard</a></li>
+              {% else %}
+                <li><a href="{% url 'register' %}">Register</a></li>
+              {% endif %}
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><span class="text-gray-300">Online Consultation</span></li>
+              <li><span class="text-gray-300">Hospital Directory</span></li>
+              <li><span class="text-gray-300">Doctor Profiles</span></li>
+              <li><span class="text-gray-300">Medical Equipment Information</span></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Contact</h4>
+            <ul class="space-y-3">
+              <li class="footer-contact">
+                <i class="fas fa-map-marker-alt text-primary"></i>
+                <span class="text-gray-300">Accra, Ghana</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-phone text-primary"></i>
+                <span class="text-gray-300">+233 30 000 0000</span>
+              </li>
+              <li class="footer-contact">
+                <i class="fas fa-envelope text-primary"></i>
+                <span class="text-gray-300">info@streamlinecare.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p class="text-gray-400 text-sm">
+            &copy; <span id="current-year"></span> Streamline Care. All rights reserved.
+          </p>
+          <div class="footer-bottom-links">
+            <a href="#" class="text-gray-400">Terms</a>
+            <a href="#" class="text-gray-400">Privacy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Set copyright year
+    document.getElementById('current-year').innerText = new Date().getFullYear();
+    
+    // Mobile menu toggle
+    document.getElementById('navbar-toggle').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('navbar-mobile');
+      mobileMenu.classList.toggle('active');
+    });
+  </script>
+  
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

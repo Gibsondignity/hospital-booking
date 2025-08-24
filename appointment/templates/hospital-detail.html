@@ -1,0 +1,177 @@
+
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+
+{% block title %}{{ hospital.name }} - Streamline Care{% endblock %}
+
+{% block content %}
+    <!-- Hero Section with Hospital Image -->
+    <section class="relative">
+      <div class="h-64 md:h-96 w-full">
+        <img
+          src="{{ hospital.image }}"
+          alt="{{ hospital.name }}"
+          class="w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-black opacity-40"></div>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
+        <div class="container-custom">
+          <h1 class="text-3xl md:text-4xl font-bold mb-2">{{ hospital.name }}</h1>
+          <div class="flex items-center">
+            <i class="fas fa-map-marker-alt mr-2"></i>
+            <span>{{ hospital.address }}, {{ hospital.location }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Hospital Info Section -->
+    <section class="py-12">
+      <div class="container-custom">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Left Column - Description -->
+          <div class="md:col-span-2">
+            <h2 class="section-title">About the Hospital</h2>
+            <p class="text-gray-700 mb-6">{{ hospital.description }}</p>
+            
+            <!-- Contact Info -->
+            <div class="bg-gray-50 p-6 rounded-lg mb-8">
+              <h3 class="text-xl font-semibold mb-4">Contact Information</h3>
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <i class="fas fa-phone text-primary mr-3"></i>
+                  <span>{{ hospital.phone_number }}</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-envelope text-primary mr-3"></i>
+                  <span>{{ hospital.email }}</span>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-map-marker-alt text-primary mr-3 mt-1"></i>
+                  <span>{{ hospital.address }}, {{ hospital.location }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Column - Quick Actions -->
+          <div>
+            <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100">
+              <h3 class="text-xl font-semibold mb-4">Quick Actions</h3>
+              <a href="{% url 'book_appointment' %}" class="btn-primary w-full mb-3 flex items-center justify-center">
+                <i class="far fa-calendar-alt mr-2"></i>
+                Book Appointment
+              </a>
+              <button class="btn-outline border-primary text-primary w-full">
+                View Hospital Brochure
+              </button>
+              
+              <div class="mt-6 pt-6 border-t">
+                <h4 class="font-medium mb-2">Working Hours</h4>
+                <div class="space-y-1 text-sm">
+                  <div class="flex justify-between">
+                    <span>Monday - Friday</span>
+                    <span>8:00 AM - 8:00 PM</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Saturday</span>
+                    <span>8:00 AM - 5:00 PM</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Sunday</span>
+                    <span>8:00 AM - 1:00 PM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Medical Equipment Section -->
+    <section class="py-12 bg-gray-50">
+      <div class="container-custom">
+        <h2 class="section-title">Medical Equipment</h2>
+        <p class="text-gray-600 mb-8">
+          {{ hospital.name }} is equipped with state-of-the-art medical technology to provide the best care for patients.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% for item in hospital.equipment %}
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-primary mb-2">{{ item.name }}</h3>
+            <p class="text-gray-600">{{ item.description }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    
+    <!-- Doctors Section -->
+    <section class="py-12">
+      <div class="container-custom">
+        <h2 class="section-title">Our Specialists</h2>
+        <p class="text-gray-600 mb-8">
+          Meet our team of experienced medical professionals at {{ hospital.name }}.
+        </p>
+        
+        {% if doctors %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for doctor in doctors %}
+            <a href="{% url 'doctor_profile' doctor.id %}" class="doctor-card">
+              <div class="card-image">
+                {% if doctor.image %}
+                  <img src="{{ doctor.image }}" alt="{{ doctor.name }}">
+                {% else %}
+                  <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                    <i class="fas fa-user text-gray-400 text-5xl"></i>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card-content">
+                <h3 class="card-title">{{ doctor.name }}</h3>
+                <p class="card-subtitle">{{ doctor.specialty }}</p>
+                <p class="text-sm text-gray-600 mt-1">{{ doctor.title }}</p>
+                <div class="mt-4">
+                  <div class="flex items-center">
+                    <i class="fas fa-star text-yellow-500"></i>
+                    <span class="text-sm text-gray-600 ml-1">{{ doctor.experience }} years experience</span>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <span class="card-link">View Profile &rarr;</span>
+                </div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-center py-10 bg-gray-50 rounded-lg">
+            No doctors information available for this hospital at the moment.
+          </p>
+        {% endif %}
+      </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="py-12 bg-primary text-white">
+      <div class="container-custom text-center">
+        <h2 class="text-3xl font-bold mb-4">Need a Consultation?</h2>
+        <p class="text-xl mb-6">
+          Book an appointment with one of our specialists today.
+        </p>
+        <a href="{% url 'book_appointment' %}" class="btn-primary bg-white text-primary hover:bg-white/90">
+          Book an Appointment
+        </a>
+      </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Set copyright year
+  document.getElementById('current-year').innerText = new Date().getFullYear();
+</script>
+{% endblock %}

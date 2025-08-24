@@ -1,0 +1,58 @@
+{% extends 'accounts/base.html' %}
+{% load static tailwind_tags %}
+
+{% block accounts_title %}Profile{% endblock %}
+
+{% block accounts_heading %}Your Profile{% endblock %}
+
+{% block accounts_content %}
+<div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+            Username
+        </label>
+        <p class="text-gray-900">{{ user.username }}</p>
+    </div>
+    
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+            Email
+        </label>
+        <p class="text-gray-900">{{ user.email }}</p>
+    </div>
+    
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+            Phone Number
+        </label>
+        <p class="text-gray-900">{{ user.phone_number|default:"Not provided" }}</p>
+    </div>
+    
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+            Address
+        </label>
+        <p class="text-gray-900">{{ user.address|default:"Not provided" }}</p>
+    </div>
+    
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+            Date Joined
+        </label>
+        <p class="text-gray-900">{{ user.date_joined|date:"F d, Y" }}</p>
+    </div>
+    
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+            Last Login
+        </label>
+        <p class="text-gray-900">{{ user.last_login|date:"F d, Y H:i" }}</p>
+    </div>
+    
+    <div class="flex items-center justify-between">
+        <a href="{% url 'dashboard' %}" class="btn-primary">
+            Go to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
