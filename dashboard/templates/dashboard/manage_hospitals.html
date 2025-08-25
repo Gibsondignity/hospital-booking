@@ -17,6 +17,7 @@
     <h2 class="text-xl font-bold text-gray-800 mb-6">Add New Hospital</h2>
     <form method="post" class="space-y-6">
       {% csrf_token %}
+      <input type="hidden" name="add_hospital" value="1">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
@@ -90,6 +91,68 @@
     </form>
   </div>
 
+  <!-- Edit Hospital Form (Hidden by default) -->
+  <div id="edit-hospital-form" class="bg-white shadow rounded-lg p-6 mb-8 hidden">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Edit Hospital</h2>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <input type="hidden" name="edit_hospital" value="1">
+      <input type="hidden" id="edit-hospital-id" name="hospital_id" value="">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="edit-name" class="block text-sm font-medium text-gray-700 mb-1">
+            Hospital Name
+          </label>
+          <input type="text" id="edit-name" name="name" class="input" required>
+        </div>
+        
+        <div>
+          <label for="edit-location" class="block text-sm font-medium text-gray-700 mb-1">
+            Location
+          </label>
+          <input type="text" id="edit-location" name="location" class="input">
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="edit-address" class="block text-sm font-medium text-gray-700 mb-1">
+            Address
+          </label>
+          <input type="text" id="edit-address" name="address" class="input" required>
+        </div>
+        
+        <div>
+          <label for="edit-phone_number" class="block text-sm font-medium text-gray-700 mb-1">
+            Phone Number
+          </label>
+          <input type="text" id="edit-phone_number" name="phone_number" class="input">
+        </div>
+        
+        <div>
+          <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
+          <input type="email" id="edit-email" name="email" class="input">
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="edit-description" class="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          <textarea id="edit-description" name="description" class="textarea" rows="4"></textarea>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 pt-4">
+        <button type="button" onclick="cancelEditHospital()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Cancel
+        </button>
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Update Hospital
+        </button>
+      </div>
+    </form>
+  </div>
+
   <div class="bg-white shadow rounded-lg p-6 mb-8">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl font-bold text-gray-800">All Hospitals</h2>
@@ -133,12 +196,12 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-3">
-                  <a href="#" class="text-indigo-600 hover:text-indigo-900" title="Edit">
+                  <button type="button" onclick="editHospital({{ hospital.id }})" class="text-indigo-600 hover:text-indigo-900" title="Edit">
                     <i class="fas fa-edit"></i>
-                  </a>
-                  <a href="#" class="text-red-600 hover:text-red-900" title="Delete">
+                  </button>
+                  <button type="button" onclick="deleteHospital({{ hospital.id }}, '{{ hospital.name|escapejs }}')" class="text-red-600 hover:text-red-900" title="Delete">
                     <i class="fas fa-trash-alt"></i>
-                  </a>
+                  </button>
                   <a href="{% url 'hospital_detail' hospital.id %}" class="text-green-600 hover:text-green-900" title="View Details">
                     <i class="fas fa-eye"></i>
                   </a>
@@ -233,7 +296,66 @@
 <script>
   function toggleHospitalForm() {
     const form = document.getElementById('hospital-form');
+    const editForm = document.getElementById('edit-hospital-form');
     form.classList.toggle('hidden');
+    // Hide edit form if showing add form
+    if (!form.classList.contains('hidden')) {
+      editForm.classList.add('hidden');
+    }
+  }
+  
+  function editHospital(hospitalId) {
+    // Hide add form if visible
+    document.getElementById('hospital-form').classList.add('hidden');
+    
+    // Show edit form
+    const editForm = document.getElementById('edit-hospital-form');
+    editForm.classList.remove('hidden');
+    
+    // Set the hospital ID
+    document.getElementById('edit-hospital-id').value = hospitalId;
+    
+    // Scroll to the form
+    editForm.scrollIntoView({ behavior: 'smooth' });
+  }
+  
+  function cancelEditHospital() {
+    document.getElementById('edit-hospital-form').classList.add('hidden');
+  }
+  
+  function deleteHospital(hospitalId, hospitalName) {
+    if (confirm(`Are you sure you want to delete the hospital "${hospitalName}"? This action cannot be undone.`)) {
+      // Create a form to submit the delete request
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.style.display = 'none';
+      
+      // Add CSRF token
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrfmiddlewaretoken';
+      csrfInput.value = csrfToken;
+      form.appendChild(csrfInput);
+      
+      // Add delete indicator
+      const deleteInput = document.createElement('input');
+      deleteInput.type = 'hidden';
+      deleteInput.name = 'delete_hospital';
+      deleteInput.value = '1';
+      form.appendChild(deleteInput);
+      
+      // Add hospital ID
+      const idInput = document.createElement('input');
+      idInput.type = 'hidden';
+      idInput.name = 'hospital_id';
+      idInput.value = hospitalId;
+      form.appendChild(idInput);
+      
+      // Submit the form
+      document.body.appendChild(form);
+      form.submit();
+    }
   }
 </script>
 {% endblock %}

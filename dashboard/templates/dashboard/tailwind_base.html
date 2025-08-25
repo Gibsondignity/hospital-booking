@@ -38,7 +38,7 @@
          {% if request.resolver_match.url_name == 'manage_bookings' %} bg-indigo-600 text-white {% endif %}">
         <i class="fas fa-calendar-check w-5 mr-3"></i> Manage Bookings
       </a>
-      {% if user.is_staff %}
+      
       <a href="{% url 'manage_doctors' %}" 
          class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-indigo-600 hover:text-white transition
          {% if request.resolver_match.url_name == 'manage_doctors' %} bg-indigo-600 text-white {% endif %}">
@@ -49,7 +49,7 @@
          {% if request.resolver_match.url_name == 'manage_hospitals' %} bg-indigo-600 text-white {% endif %}">
         <i class="fas fa-hospital-alt w-5 mr-3"></i> Hospitals
       </a>
-      {% endif %}
+      
       <a href="{% url 'book_appointment' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-indigo-600 hover:text-white transition">
         <i class="fas fa-calendar-plus w-5 mr-3"></i> Book Appointment
       </a>
