@@ -8,115 +8,105 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="max-w-md w-full mx-auto">
-        <!-- Messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="mb-4 rounded-lg p-4 {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'info' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 text-gray-700{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-        
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div class="px-6 py-8">
-                <div class="flex justify-center mb-6">
-                    <!-- Hospital Icon -->
-                    <svg class="w-12 h-12 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </div>
-
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Create an Account</h2>
-
-                <form method="post" class="space-y-6">
-                    {% csrf_token %}
-                    
-                    <!-- Username Field -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1" for="{{ form.username.id_for_label }}">
-                            Username
-                        </label>
-                        {{ form.username }}
-                        {% if form.username.errors %}
-                            <p class="text-red-500 text-xs italic">{{ form.username.errors }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Email Field -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1" for="{{ form.email.id_for_label }}">
-                            Email
-                        </label>
-                        {{ form.email }}
-                        {% if form.email.errors %}
-                            <p class="text-red-500 text-xs italic">{{ form.email.errors }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Phone Number Field -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1" for="{{ form.phone_number.id_for_label }}">
-                            Phone Number
-                        </label>
-                        {{ form.phone_number }}
-                        {% if form.phone_number.errors %}
-                            <p class="text-red-500 text-xs italic">{{ form.phone_number.errors }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Address Field -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1" for="{{ form.address.id_for_label }}">
-                            Address
-                        </label>
-                        {{ form.address }}
-                        {% if form.address.errors %}
-                            <p class="text-red-500 text-xs italic">{{ form.address.errors }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Password Field -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1" for="{{ form.password1.id_for_label }}">
-                            Password
-                        </label>
-                        {{ form.password1 }}
-                        {% if form.password1.errors %}
-                            <p class="text-red-500 text-xs italic">{{ form.password1.errors }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Confirm Password Field -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1" for="{{ form.password2.id_for_label }}">
-                            Confirm Password
-                        </label>
-                        {{ form.password2 }}
-                        {% if form.password2.errors %}
-                            <p class="text-red-500 text-xs italic">{{ form.password2.errors }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <div class="pt-2">
-                        <button class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200" type="submit">
-                            Register
-                        </button>
-                    </div>
-                </form>
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+          <div class="text-center mb-6">
+            <h2 class="mt-2 text-3xl font-extrabold text-gray-900">Create your account</h2>
+            <p class="mt-2 text-sm text-gray-600">Already have an account? 
+              <a href="{% url 'login' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                Sign in
+              </a>
+            </p>
+          </div>
+      
+          <form method="post" class="space-y-5">
+            {% csrf_token %}
+      
+            <!-- Username Field -->
+            <div>
+              <label for="{{ form.username.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                Username
+              </label>
+              {{ form.username }}
+              {% if form.username.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.username.errors|first }}</p>
+              {% endif %}
             </div>
-
-            <!-- Login Link -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
-                <p class="text-sm text-gray-600">
-                    Already have an account? 
-                    <a href="{% url 'login' %}" class="font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200">
-                        Sign in
-                    </a>
-                </p>
+      
+            <!-- Email Field -->
+            <div>
+              <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                Email Address
+              </label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.email.errors|first }}</p>
+              {% endif %}
             </div>
+      
+            <!-- Phone Number Field -->
+            <div>
+              <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                Phone Number
+              </label>
+              {{ form.phone_number }}
+              {% if form.phone_number.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.phone_number.errors|first }}</p>
+              {% endif %}
+            </div>
+      
+            <!-- Address Field -->
+            <div>
+              <label for="{{ form.address.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                Address
+              </label>
+              {{ form.address }}
+              {% if form.address.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.address.errors|first }}</p>
+              {% endif %}
+            </div>
+      
+            <!-- Password Field -->
+            <div>
+              <label for="{{ form.password1.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                Password
+              </label>
+              {{ form.password1 }}
+              {% if form.password1.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.password1.errors|first }}</p>
+              {% endif %}
+              <p class="mt-1 text-xs text-gray-500">Use at least 8 characters.</p>
+            </div>
+      
+            <!-- Confirm Password Field -->
+            <div>
+              <label for="{{ form.password2.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                Confirm Password
+              </label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.password2.errors|first }}</p>
+              {% endif %}
+            </div>
+      
+            <!-- Submit Button -->
+            <div class="pt-2">
+              <button
+                type="submit"
+                class="w-full py-2.5 px-4 border border-transparent rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 shadow-sm"
+              >
+                Register
+              </button>
+            </div>
+          </form>
+      
+          <!-- Optional: Divider -->
+          {% if view.request.user.is_authenticated %}
+            <div class="mt-6 text-center text-sm text-gray-500">
+              <p>Already logged in as {{ request.user }}.</p>
+            </div>
+          {% endif %}
         </div>
-    </div>
+      </div>
 </body>
 </html>
