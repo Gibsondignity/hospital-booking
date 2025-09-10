@@ -6,21 +6,40 @@
 
 {% block content %}
     <!-- Hero Section with Hospital Image -->
-    <section class="relative">
-      <div class="h-64 md:h-96 w-full">
-        <img
-          src="{{ hospital.image }}"
-          alt="{{ hospital.name }}"
-          class="w-full h-full object-cover"
-        />
-        <div class="absolute inset-0 bg-black opacity-40"></div>
-      </div>
-      <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
-        <div class="container-custom">
-          <h1 class="text-3xl md:text-4xl font-bold mb-2">{{ hospital.name }}</h1>
-          <div class="flex items-center">
-            <i class="fas fa-map-marker-alt mr-2"></i>
-            <span>{{ hospital.address }}, {{ hospital.location }}</span>
+    <section class="relative py-6 md:py-10">
+      <!-- Hero Image with Overlay -->
+      <div class="relative h-[50vh] max-h-96 md:max-h-none w-full overflow-hidden rounded-xl shadow-2xl max-w-6xl mx-auto">
+        {% if hospital.image %}
+          <img
+            src="{{ hospital.image.url }}"
+            alt="{{ hospital.name }}"
+            class="w-full h-full object-cover"
+          />
+        {% else %}
+          <div class="w-full h-full bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center">
+            <i class="fas fa-hospital text-blue-300 text-6xl"></i>
+          </div>
+        {% endif %}
+    
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+    
+        <!-- Hospital Info Overlay -->
+        <div class="absolute bottom-0 left-0 right-0 p-6">
+          <div class="max-w-4xl mx-auto">
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">{{ hospital.name }}</h1>
+            <div class="flex flex-col md:flex-row md:items-center gap-2 text-white/90 text-sm md:text-base drop-shadow">
+              <div class="flex items-center">
+                <i class="fas fa-map-marker-alt mr-2 text-green-300"></i>
+                <span>{{ hospital.address }}, {{ hospital.location }}</span>
+              </div>
+              {% if hospital.rating %}
+                <div class="flex items-center mt-1 md:mt-0">
+                  <i class="fas fa-star text-yellow-300 mr-1"></i>
+                  <span>{{ hospital.rating }} ({{ hospital.review_count }} reviews)</span>
+                </div>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
@@ -90,22 +109,32 @@
       </div>
     </section>
     
-    <!-- Medical Equipment Section -->
+    <!-- Services Section -->
     <section class="py-12 bg-gray-50">
       <div class="container-custom">
-        <h2 class="section-title">Medical Equipment</h2>
+        <h2 class="section-title">Our Services</h2>
         <p class="text-gray-600 mb-8">
-          {{ hospital.name }} is equipped with state-of-the-art medical technology to provide the best care for patients.
+          {{ hospital.name }} offers a comprehensive range of medical services to meet your healthcare needs.
         </p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {% for item in hospital.equipment %}
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-primary mb-2">{{ item.name }}</h3>
-            <p class="text-gray-600">{{ item.description }}</p>
+
+        {% if services %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for service in services %}
+            <div class="bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-lg font-semibold text-primary mb-2">{{ service.name }}</h3>
+              <p class="text-gray-600 mb-3">{{ service.description }}</p>
+              <div class="flex items-center text-sm text-gray-500">
+                <i class="far fa-clock mr-2"></i>
+                <span>{{ service.duration }} minutes</span>
+              </div>
+            </div>
+            {% endfor %}
           </div>
-          {% endfor %}
-        </div>
+        {% else %}
+          <p class="text-center py-10 bg-white rounded-lg">
+            No services information available for this hospital at the moment.
+          </p>
+        {% endif %}
       </div>
     </section>
     
@@ -123,7 +152,7 @@
             <a href="{% url 'doctor_profile' doctor.id %}" class="doctor-card">
               <div class="card-image">
                 {% if doctor.image %}
-                  <img src="{{ doctor.image }}" alt="{{ doctor.name }}">
+                  <img src="{{ doctor.image.url }}" alt="{{ doctor.name }}">
                 {% else %}
                   <div class="w-full h-full flex items-center justify-center bg-gray-100">
                     <i class="fas fa-user text-gray-400 text-5xl"></i>
@@ -137,7 +166,7 @@
                 <div class="mt-4">
                   <div class="flex items-center">
                     <i class="fas fa-star text-yellow-500"></i>
-                    <span class="text-sm text-gray-600 ml-1">{{ doctor.experience }} years experience</span>
+                    <span class="text-sm text-gray-600 ml-1">{{ doctor.experience_years }} years experience</span>
                   </div>
                 </div>
                 <div class="card-footer">
