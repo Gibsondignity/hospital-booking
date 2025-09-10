@@ -16,7 +16,7 @@
         </p>
       </div>
     </section>
-    
+
     <!-- Process Steps -->
     <section class="py-10 border-b">
       <div class="container-custom">
@@ -47,7 +47,7 @@
         </div>
       </div>
     </section>
-    
+
     <!-- Booking Section -->
     <section class="py-12">
       <div class="container-custom">
@@ -104,6 +104,19 @@
                     </select>
                   </div>
                   
+                  <div class="form-group">
+                    <label for="serviceId" class="form-label">Select Service</label>
+                    <select
+                      id="serviceId"
+                      name="serviceId"
+                      class="select"
+                      disabled
+                    >
+                      <option value="">Select a service</option>
+                      <!-- Service options will be dynamically populated -->
+                    </select>
+                  </div>
+
                   <div class="form-group">
                     <label for="doctorId" class="form-label">Select Doctor</label>
                     <select
@@ -241,6 +254,7 @@
   const HOSPITALS_API = "{% url 'get_hospitals' %}";
   const DOCTORS_API = "{% url 'get_doctors' %}";
   const APPOINTMENTS_API = "{% url 'create_appointment' %}";
+
 </script>
-<script src="/static/script.js" defer></script>
+<script src="{% static 'script.js' %}" defer></script>
 {% endblock %}
