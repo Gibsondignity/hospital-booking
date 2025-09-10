@@ -1,248 +1,468 @@
-{% extends 'dashboard/tailwind_base.html' %}
+{% extends 'dashboard/base.html' %}
 
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="pb-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-semibold text-gray-900">Dashboard Overview</h1>
-    <div class="flex space-x-2">
-      {% if user.is_staff %}
-      <a href="{% url 'manage_hospitals' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        <i class="fas fa-plus mr-2"></i> Add Hospital
-      </a>
+  <!-- Welcome Section -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-2">
+      Welcome back, {{ request.user.get_full_name|default:request.user.username }}!
+    </h1>
+    <p class="text-gray-600">
+      {% if user_role == 'admin' %}
+        System Administrator Dashboard - Overview of all hospitals and operations
+      {% elif user_role == 'hospital_admin' %}
+        Hospital Administrator Dashboard - Managing {{ user_hospital.name }}
+      {% elif user_role == 'staff' %}
+        Staff Dashboard - Supporting operations at {{ user_hospital.name }}
+      {% else %}
+        Patient Dashboard - Your healthcare appointments and information
       {% endif %}
-      <a href="{% url 'book_appointment' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-        <i class="fas fa-calendar-plus mr-2"></i> Book Appointment
-      </a>
-    </div>
+    </p>
   </div>
 
-  <!-- Stats cards -->
+  <!-- Key Metrics Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white shadow rounded-lg p-6 border-l-4 border-indigo-500">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <i class="fas fa-calendar-check text-indigo-500 text-2xl"></i>
-        </div>
-        <div class="ml-4">
-          <h3 class="text-lg font-semibold text-gray-700">Your Appointments</h3>
-          <p class="text-3xl font-bold text-gray-900">{{ user_appointments.count }}</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="bg-white shadow rounded-lg p-6 border-l-4 border-green-500">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <i class="fas fa-book-medical text-green-500 text-2xl"></i>
-        </div>
-        <div class="ml-4">
-          <h3 class="text-lg font-semibold text-gray-700">Recent Bookings</h3>
-          <p class="text-3xl font-bold text-gray-900">{{ recent_bookings.count }}</p>
+    <!-- Hospitals Card -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+              <i class="fas fa-hospital text-white"></i>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Hospitals</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ hospitals_count }}</dd>
+            </dl>
+          </div>
         </div>
       </div>
     </div>
-    
-    <div class="bg-white shadow rounded-lg p-6 border-l-4 border-blue-500">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <i class="fas fa-hospital text-blue-500 text-2xl"></i>
-        </div>
-        <div class="ml-4">
-          <h3 class="text-lg font-semibold text-gray-700">Hospitals</h3>
-          <p class="text-3xl font-bold text-gray-900">{{ hospitals_count }}</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="bg-white shadow rounded-lg p-6 border-l-4 border-yellow-500">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <i class="fas fa-user-md text-yellow-500 text-2xl"></i>
-        </div>
-        <div class="ml-4">
-          <h3 class="text-lg font-semibold text-gray-700">Doctors</h3>
-          <p class="text-3xl font-bold text-gray-900">{{ doctors_count }}</p>
+
+    <!-- Doctors Card -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+              <i class="fas fa-user-md text-white"></i>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Doctors</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ doctors_count }}</dd>
+            </dl>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Appointments Card -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+              <i class="fas fa-calendar-check text-white"></i>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Total Appointments</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ appointments_count }}</dd>
+              {% if confirmed_appointments_count > 0 %}
+              <dd class="text-sm text-green-600">{{ confirmed_appointments_count }} confirmed</dd>
+              {% endif %}
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Services Card -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+              <i class="fas fa-stethoscope text-white"></i>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Services</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ services_count }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion Rate Card (for staff roles) -->
+    {% if user_role in 'admin,hospital_admin,staff' %}
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+              <i class="fas fa-chart-line text-white"></i>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Completion Rate</dt>
+              <dd class="text-lg font-medium text-gray-900">{{ appointment_completion_rate }}%</dd>
+              <dd class="text-sm text-gray-500">{{ confirmed_appointments_count }}/{{ confirmed_appointments_count|add:pending_appointments_count }} completed</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </div>
 
-  <!-- Hospital Services Section -->
-  <div class="bg-white shadow rounded-lg p-6 mb-8">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl font-bold text-gray-800">Hospitals & Services</h2>
-      {% if user.is_staff %}
-      <a href="{% url 'manage_hospitals' %}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-        Manage All
-      </a>
-      {% endif %}
-    </div>
-    
-    {% if hospitals_with_services %}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for hospital in hospitals_with_services %}
-        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900">{{ hospital.name }}</h3>
-              <p class="text-sm text-gray-500">{{ hospital.location }}</p>
-            </div>
-            {% if user.is_staff %}
-            <a href="{% url 'manage_hospitals' %}" class="text-indigo-600 hover:text-indigo-900">
-              <i class="fas fa-edit"></i>
-            </a>
+  <!-- Main Content Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Appointments -->
+    <div class="lg:col-span-2">
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">
+            {% if user_role in 'admin,hospital_admin,staff' %}
+              Recent Appointments
+            {% else %}
+              Your Appointments
             {% endif %}
-          </div>
-          <div class="mt-4">
-            <h4 class="text-sm font-medium text-gray-700 mb-2">Services:</h4>
-            <div class="flex flex-wrap gap-2">
-              {% for doctor in hospital.doctors.all|slice:":5" %}
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                {{ doctor.specialty }}
-              </span>
+          </h3>
+        </div>
+        <div class="p-6">
+          {% if user_appointments %}
+            <div class="space-y-4">
+              {% for appointment in user_appointments %}
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-calendar text-blue-600"></i>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">
+                      {{ appointment.full_name }}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      {{ appointment.doctor.name }} • {{ appointment.hospital.name }}
+                    </div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-medium text-gray-900">
+                    {{ appointment.date|date:"M d, Y" }}
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    {{ appointment.time }}
+                  </div>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                   {% if appointment.status == "confirmed" %}bg-green-100 text-green-800
+                   {% elif appointment.status == "pending" %}bg-yellow-100 text-yellow-800
+                   {% elif appointment.status == "cancelled" %}bg-red-100 text-red-800
+                   {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ appointment.status|title }}
+                  </span>
+                </div>
+              </div>
               {% endfor %}
-              {% if hospital.doctors.count > 5 %}
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                +{{ hospital.doctors.count|add:"-5" }} more
-              </span>
-              {% endif %}
             </div>
+          {% else %}
+            <div class="text-center py-8">
+              <i class="fas fa-calendar-times text-gray-300 text-4xl mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-900 mb-1">No appointments found</h3>
+              <p class="text-gray-500">
+                {% if user_role in 'admin,hospital_admin,staff' %}
+                  No recent appointments in the system.
+                {% else %}
+                  You don't have any appointments yet.
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- User Role & Hospital Info -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Your Information</h3>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-500">Role:</span>
+            <span class="text-sm font-medium text-gray-900">{{ request.user.get_role_display }}</span>
           </div>
-          <div class="mt-4">
-            <a href="{% url 'hospital_detail' hospital.id %}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-              View Details
+          {% if user_hospital %}
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-500">Hospital:</span>
+            <span class="text-sm font-medium text-gray-900">{{ user_hospital.name }}</span>
+          </div>
+          {% endif %}
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-500">Member since:</span>
+            <span class="text-sm font-medium text-gray-900">{{ request.user.date_joined|date:"M Y" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+        <div class="space-y-3">
+          {% if user_role == 'admin' %}
+            <a href="{% url 'manage_hospitals' %}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+              <i class="fas fa-plus mr-2"></i>
+              Add Hospital
             </a>
-            <a href="{% url 'book_appointment' %}?hospital={{ hospital.id }}" class="ml-4 text-green-600 hover:text-green-900 text-sm font-medium">
+            <a href="{% url 'manage_users' %}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              <i class="fas fa-users mr-2"></i>
+              Manage Users
+            </a>
+          {% elif user_role in 'hospital_admin,staff' %}
+            <a href="{% url 'manage_doctors' %}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+              <i class="fas fa-user-md mr-2"></i>
+              Manage Doctors
+            </a>
+            <a href="{% url 'manage_services' %}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              <i class="fas fa-stethoscope mr-2"></i>
+              Manage Services
+            </a>
+          {% else %}
+            <a href="{% url 'book_appointment' %}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+              <i class="far fa-calendar-plus mr-2"></i>
               Book Appointment
             </a>
+            <a href="{% url 'hospitals' %}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              <i class="fas fa-search mr-2"></i>
+              Find Hospitals
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      {% if doctor_management or hospital_management %}
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
+        <div class="space-y-3">
+          {% for activity in doctor_management %}
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-user-md text-green-600 text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-3 flex-1">
+              <p class="text-sm text-gray-900">
+                <span class="font-medium">{{ activity.doctor.name }}</span> was {{ activity.action }}
+              </p>
+              <p class="text-xs text-gray-500">{{ activity.timestamp|date:"M d, H:i" }}</p>
+            </div>
+          </div>
+          {% endfor %}
+
+          {% for activity in hospital_management %}
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-hospital text-blue-600 text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-3 flex-1">
+              <p class="text-sm text-gray-900">
+                <span class="font-medium">{{ activity.hospital.name }}</span> was {{ activity.action }}
+              </p>
+              <p class="text-xs text-gray-500">{{ activity.timestamp|date:"M d, H:i" }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Hospital Overview (for System Admin) -->
+  {% if user_role == 'admin' %}
+  <div class="mt-8">
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">System Overview - All Hospitals</h3>
+        <p class="text-sm text-gray-500 mt-1">Performance metrics across all hospitals in the system</p>
+      </div>
+      <div class="p-6">
+        {% if hospitals_with_services %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for hospital in hospitals_with_services %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-medium text-gray-900">{{ hospital.name }}</h4>
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <i class="fas fa-hospital text-blue-600 text-xs"></i>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-500">Doctors:</span>
+                  <span class="font-medium text-blue-600">{{ hospital.doctors.count }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-500">Services:</span>
+                  <span class="font-medium text-green-600">{{ hospital.services.count }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-500">Appointments:</span>
+                  <span class="font-medium text-purple-600">{{ hospital.appointments.count }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-500">Confirmed:</span>
+                  <span class="font-medium text-green-600">{{ hospital.appointments.count }}</span>
+                </div>
+              </div>
+              <div class="mt-3 flex space-x-2">
+                <a href="{% url 'hospital_detail' hospital.id %}" class="text-sm text-blue-600 hover:text-blue-800">
+                  View Details
+                </a>
+                <span class="text-gray-300">|</span>
+                <a href="{% url 'manage_hospitals' %}" class="text-sm text-gray-600 hover:text-gray-800">
+                  Manage
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- System-wide Statistics -->
+          <div class="mt-8 bg-gray-50 rounded-lg p-6">
+            <h4 class="text-md font-medium text-gray-900 mb-4">System-wide Statistics</h4>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ hospitals_count }}</div>
+                <div class="text-sm text-gray-500">Total Hospitals</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ doctors_count }}</div>
+                <div class="text-sm text-gray-500">Total Doctors</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ confirmed_appointments_count }}</div>
+                <div class="text-sm text-gray-500">Confirmed Appointments</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-yellow-600">{{ appointment_completion_rate }}%</div>
+                <div class="text-sm text-gray-500">Avg Completion Rate</div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center py-8">
+            <i class="fas fa-building text-gray-300 text-4xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">No hospitals found</h3>
+            <p class="text-gray-500">Start by adding your first hospital to begin managing the system.</p>
+            <a href="{% url 'manage_hospitals' %}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+              <i class="fas fa-plus mr-2"></i>
+              Add Hospital
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Hospital Performance (for Hospital Admin & Staff) -->
+  {% if user_role in 'hospital_admin,staff' and user_hospital %}
+  <div class="mt-8">
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">{{ user_hospital.name }} Performance</h3>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ doctors_count }}</div>
+            <div class="text-sm text-gray-500">Active Doctors</div>
+            <div class="mt-2">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600">{{ services_count }}</div>
+            <div class="text-sm text-gray-500">Available Services</div>
+            <div class="mt-2">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-purple-600">{{ confirmed_appointments_count }}</div>
+            <div class="text-sm text-gray-500">Confirmed Appointments</div>
+            <div class="mt-2">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-purple-600 h-2 rounded-full" style="width: {{ appointment_completion_rate }}%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-yellow-600">{{ appointment_completion_rate }}%</div>
+            <div class="text-sm text-gray-500">Completion Rate</div>
+            <div class="mt-2">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-600 h-2 rounded-full" style="width: {{ appointment_completion_rate }}%"></div>
+              </div>
+            </div>
           </div>
         </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="text-center py-8">
-        <i class="fas fa-hospital text-gray-300 text-4xl mb-4"></i>
-        <p class="text-gray-600">No hospitals available at the moment.</p>
-        {% if user.is_staff %}
-        <a href="{% url 'manage_hospitals' %}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Add Hospital
-        </a>
-        {% endif %}
-      </div>
-    {% endif %}
-  </div>
 
-  <!-- Recent Appointments -->
-  <div class="bg-white shadow rounded-lg p-6 mb-8">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl font-bold text-gray-800">Recent Appointments</h2>
-      <a href="{% url 'manage_bookings' %}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-        View All
-      </a>
-    </div>
-    
-    {% if user_appointments %}
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hospital</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            {% for appointment in user_appointments|slice:":5" %}
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">{{ appointment.hospital.name }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ appointment.doctor.name }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ appointment.date }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ appointment.time }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  Confirmed
-                </span>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% else %}
-      <div class="text-center py-8">
-        <i class="fas fa-calendar-plus text-gray-300 text-4xl mb-4"></i>
-        <p class="text-gray-600">You don't have any appointments yet.</p>
-        <a href="{% url 'book_appointment' %}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Book an Appointment
-        </a>
-      </div>
-    {% endif %}
-  </div>
-
-  {% if user.is_staff %}
-  <!-- Management Activities -->
-  <div class="bg-white shadow rounded-lg p-6 mb-8">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl font-bold text-gray-800">Management Activities</h2>
-      <a href="{% url 'view_appointments' %}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-        View All Appointments
-      </a>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="border border-gray-200 rounded-lg p-4">
-        <div class="flex items-center mb-4">
-          <i class="fas fa-user-md text-indigo-500 text-xl mr-2"></i>
-          <h3 class="text-lg font-semibold text-gray-800">Doctor Management</h3>
-        </div>
-        {% if doctor_management %}
-          <ul class="space-y-3">
-            {% for activity in doctor_management %}
-            <li class="pb-3 border-b border-gray-100 last:border-0">
-              <div class="flex justify-between">
-                <p class="font-medium text-gray-900">{{ activity.action }} - {{ activity.doctor.name }}</p>
-                <span class="text-xs text-gray-500">{{ activity.timestamp|date:"M d, Y" }}</span>
+        <!-- Appointment Status Breakdown -->
+        <div class="mt-8">
+          <h4 class="text-md font-medium text-gray-900 mb-4">Appointment Status</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-green-50 p-4 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                <div>
+                  <div class="text-lg font-semibold text-green-700">{{ confirmed_appointments_count }}</div>
+                  <div class="text-sm text-green-600">Confirmed</div>
+                </div>
               </div>
-              <p class="text-sm text-gray-600 mt-1">{{ activity.manager.username }}</p>
-            </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="text-gray-600 py-4 text-center">No recent doctor management activities.</p>
-        {% endif %}
-      </div>
-      
-      <div class="border border-gray-200 rounded-lg p-4">
-        <div class="flex items-center mb-4">
-          <i class="fas fa-hospital text-green-500 text-xl mr-2"></i>
-          <h3 class="text-lg font-semibold text-gray-800">Hospital Management</h3>
-        </div>
-        {% if hospital_management %}
-          <ul class="space-y-3">
-            {% for activity in hospital_management %}
-            <li class="pb-3 border-b border-gray-100 last:border-0">
-              <div class="flex justify-between">
-                <p class="font-medium text-gray-900">{{ activity.action }} - {{ activity.hospital.name }}</p>
-                <span class="text-xs text-gray-500">{{ activity.timestamp|date:"M d, Y" }}</span>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
+                <div>
+                  <div class="text-lg font-semibold text-yellow-700">{{ pending_appointments_count }}</div>
+                  <div class="text-sm text-yellow-600">Pending</div>
+                </div>
               </div>
-              <p class="text-sm text-gray-600 mt-1">{{ activity.manager.username }}</p>
-            </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="text-gray-600 py-4 text-center">No recent hospital management activities.</p>
-        {% endif %}
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-gray-500 rounded-full mr-3"></div>
+                <div>
+                  <div class="text-lg font-semibold text-gray-700">{{ appointments_count|add:0 }}</div>
+                  <div class="text-sm text-gray-600">Total</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
