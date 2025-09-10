@@ -1,172 +1,248 @@
-{% extends 'base.html' %}
 {% load static %}
+{% load tailwind_tags %}<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Afya Booking Dashboard{% endblock %}</title>
+  {% tailwind_css %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50 font-sans">
 
-{% block title %}{% block dashboard_title %}{% endblock %} - Dashboard{% endblock %}
-
-{% block content %}
 <!-- Dashboard Layout -->
-<div class="flex h-screen bg-gray-50">
-  <!-- Sidebar -->
-  <div class="hidden md:flex md:flex-shrink-0">
-    <div class="flex flex-col w-64 bg-white shadow-lg">
-      <!-- Sidebar header -->
-      <div class="flex items-center justify-between px-4 py-6 bg-indigo-700 text-white">
-        <div class="flex items-center">
-          <i class="fas fa-clinic-medical text-xl mr-3"></i>
-          <span class="text-xl font-bold">MediDash</span>
+<div class="flex h-full min-h-screen">
+  <!-- Sidebar (Desktop) -->
+  <aside class="hidden md:flex md:flex-shrink-0 w-64 lg:w-72">
+    <div class="flex flex-col h-full bg-white shadow-lg border-r border-gray-200">
+      <!-- Logo & Header -->
+      <div class="flex items-center justify-center px-6 py-5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+        <i class="fas fa-clinic-medical text-2xl mr-3 transform transition-transform duration-300 hover:rotate-12"></i>
+        <span class="text-xl font-bold tracking-wide">Afya Booking</span>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 px-4 py-6 overflow-y-auto">
+        <div class="space-y-1">
+          <a href="{% url 'dashboard' %}" 
+             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                    {% if request.resolver_match.url_name == 'dashboard' %}
+                      bg-indigo-100 text-indigo-800 font-semibold
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
+                    {% endif %}">
+            <i class="fas fa-home mr-3 text-lg"></i>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="{% url 'manage_bookings' %}" 
+             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                    {% if request.resolver_match.url_name == 'manage_bookings' %}
+                      bg-indigo-100 text-indigo-800 font-semibold
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
+                    {% endif %}">
+            <i class="fas fa-calendar-check mr-3 text-lg"></i>
+            <span>Manage Bookings</span>
+          </a>
+
+          {% if user.role in 'admin,hospital_admin,staff' %}
+          <a href="{% url 'manage_doctors' %}"
+             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                    {% if request.resolver_match.url_name == 'manage_doctors' %}
+                      bg-indigo-100 text-indigo-800 font-semibold
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
+                    {% endif %}">
+            <i class="fas fa-user-md mr-3 text-lg"></i>
+            <span>Manage Doctors</span>
+          </a>
+
+          <a href="{% url 'manage_services' %}"
+             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                    {% if request.resolver_match.url_name == 'manage_services' %}
+                      bg-indigo-100 text-indigo-800 font-semibold
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
+                    {% endif %}">
+            <i class="fas fa-concierge-bell mr-3 text-lg"></i>
+            <span>Manage Services</span>
+          </a>
+          {% endif %}
+
+          {% if user.role == 'admin' %}
+          <a href="{% url 'manage_hospitals' %}"
+             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                    {% if request.resolver_match.url_name == 'manage_hospitals' %}
+                      bg-indigo-100 text-indigo-800 font-semibold
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
+                    {% endif %}">
+            <i class="fas fa-hospital mr-3 text-lg"></i>
+            <span>Manage Hospitals</span>
+          </a>
+
+          <a href="{% url 'manage_users' %}"
+             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                    {% if request.resolver_match.url_name == 'manage_users' %}
+                      bg-indigo-100 text-indigo-800 font-semibold
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
+                    {% endif %}">
+            <i class="fas fa-users mr-3 text-lg"></i>
+            <span>Manage Users</span>
+          </a>
+          {% endif %}
+
+          <a href="{% url 'view_appointments' %}"
+             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                    {% if request.resolver_match.url_name == 'view_appointments' %}
+                      bg-indigo-100 text-indigo-800 font-semibold
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
+                    {% endif %}">
+            <i class="fas fa-calendar-alt mr-3 text-lg"></i>
+            <span>View Appointments</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- User Footer -->
+      <div class="p-4 border-t border-gray-100">
+        <div class="flex items-center space-x-3">
+          <div class="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center shadow">
+            <span class="text-white font-bold">{{ user.username|first|upper }}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-900 truncate">
+              {{ user.get_full_name|default:user.username }}
+            </p>
+            <p class="text-xs text-gray-500">{{ user.get_role_display }}</p>
+          </div>
         </div>
       </div>
-      
-      <!-- Sidebar navigation -->
-      <div class="flex flex-col flex-1 overflow-y-auto">
-        <nav class="flex-1 px-2 py-4 bg-white">
-          <div class="space-y-1">
-            <a href="{% url 'dashboard' %}" 
-               class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'dashboard' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-              <i class="fas fa-home mr-3"></i>
-              Dashboard
-            </a>
-            
-            <a href="{% url 'manage_bookings' %}" 
-               class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'manage_bookings' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-              <i class="fas fa-calendar-check mr-3"></i>
-              Manage Bookings
-            </a>
-            
-            {% if user.is_staff %}
-            <a href="{% url 'manage_doctors' %}" 
-               class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'manage_doctors' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-              <i class="fas fa-user-md mr-3"></i>
-              Manage Doctors
-            </a>
-            
-            <a href="{% url 'manage_hospitals' %}" 
-               class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'manage_hospitals' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-              <i class="fas fa-hospital mr-3"></i>
-              Manage Hospitals
-            </a>
-            {% endif %}
-            
-            <a href="{% url 'profile' %}" 
-               class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'profile' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-              <i class="fas fa-user-circle mr-3"></i>
-              My Profile
-            </a>
-          </div>
-        </nav>
+    </div>
+  </aside>
+
+  <!-- Mobile Sidebar -->
+  <div id="mobile-menu" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black opacity-50" onclick="closeMobileMenu()"></div>
+    <div class="absolute inset-y-0 left-0 w-64 max-w-xs bg-white shadow-xl transform transition duration-300 ease-in-out">
+      <!-- Mobile Header -->
+      <div class="flex items-center justify-between px-6 py-5 bg-indigo-600 text-white">
+        <span class="text-lg font-bold">Afya Booking</span>
+        <button onclick="closeMobileMenu()" class="text-white">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
+
+      <!-- Mobile Nav -->
+      <nav class="px-4 py-6 space-y-2">
+        <!-- Same as desktop nav -->
+        <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'dashboard' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
+          <i class="fas fa-home mr-3"></i> Dashboard
+        </a>
+        <a href="{% url 'manage_bookings' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_bookings' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
+          <i class="fas fa-calendar-check mr-3"></i> Manage Bookings
+        </a>
+        {% if user.role in 'admin,hospital_admin,staff' %}
+        <a href="{% url 'manage_doctors' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_doctors' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
+          <i class="fas fa-user-md mr-3"></i> Manage Doctors
+        </a>
+        <a href="{% url 'manage_services' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_services' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
+          <i class="fas fa-concierge-bell mr-3"></i> Manage Services
+        </a>
+        {% endif %}
+        {% if user.role == 'admin' %}
+        <a href="{% url 'manage_hospitals' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_hospitals' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
+          <i class="fas fa-hospital mr-3"></i> Manage Hospitals
+        </a>
+        <a href="{% url 'manage_users' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_users' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
+          <i class="fas fa-users mr-3"></i> Manage Users
+        </a>
+        {% endif %}
+        <a href="{% url 'view_appointments' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'view_appointments' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
+          <i class="fas fa-calendar-alt mr-3"></i> View Appointments
+        </a>
+      </nav>
     </div>
   </div>
 
-  <!-- Mobile sidebar -->
-  <div class="md:hidden">
-    <div class="fixed inset-0 flex z-40">
-      <!-- Off-canvas menu for mobile -->
-      <div class="fixed inset-0 flex z-40">
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
-        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-          <div class="flex items-center justify-between px-4 py-6 bg-indigo-700 text-white">
-            <div class="flex items-center">
-              <i class="fas fa-clinic-medical text-xl mr-3"></i>
-              <span class="text-xl font-bold">MediDash</span>
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Topbar -->
+    <header class="flex-shrink-0 bg-white shadow-sm border-b border-gray-200">
+      <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <!-- Mobile Menu Toggle -->
+        <button type="button" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                onclick="document.getElementById('mobile-menu').classList.remove('hidden')">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-lg mx-auto">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-search text-gray-400"></i>
             </div>
-            <button type="button" class="md:hidden rounded-md p-2 inline-flex items-center justify-center text-white hover:text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-              <span class="sr-only">Close sidebar</span>
-              <i class="fas fa-times"></i>
+            <input type="search" placeholder="Search appointments, doctors..."
+                   class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-gray-900 placeholder-gray-500">
+          </div>
+        </div>
+
+        <!-- Notifications & Profile -->
+        <div class="flex items-center space-x-4">
+          <button class="p-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-100 rounded-full transition">
+            <i class="fas fa-bell"></i>
+          </button>
+          <div class="relative">
+            <button class="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-full">
+              <div class="h-9 w-9 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center shadow">
+                <span class="text-white text-sm font-semibold">{{ user.username|first|upper }}</span>
+              </div>
             </button>
           </div>
-          <div class="flex-1 h-0 overflow-y-auto">
-            <nav class="px-2 py-4 space-y-1">
-              <a href="{% url 'dashboard' %}" 
-                 class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'dashboard' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-                <i class="fas fa-home mr-3"></i>
-                Dashboard
-              </a>
-              
-              <a href="{% url 'manage_bookings' %}" 
-                 class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'manage_bookings' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-                <i class="fas fa-calendar-check mr-3"></i>
-                Manage Bookings
-              </a>
-              
-              {% if user.is_staff %}
-              <a href="{% url 'manage_doctors' %}" 
-                 class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'manage_doctors' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-                <i class="fas fa-user-md mr-3"></i>
-                Manage Doctors
-              </a>
-              
-              <a href="{% url 'manage_hospitals' %}" 
-                 class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'manage_hospitals' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-                <i class="fas fa-hospital mr-3"></i>
-                Manage Hospitals
-              </a>
-              {% endif %}
-              
-              <a href="{% url 'profile' %}" 
-                 class="flex items-center px-4 py-3 text-base font-medium rounded-md {% if request.resolver_match.url_name == 'profile' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-gray-100 hover:text-gray-900{% endif %}">
-                <i class="fas fa-user-circle mr-3"></i>
-                My Profile
-              </a>
-            </nav>
-          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </header>
 
-  <!-- Main content -->
-  <div class="flex flex-col flex-1 w-0 overflow-hidden">
-    <!-- Top navigation -->
-    <div class="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
-      <button type="button" class="md:hidden px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-        <span class="sr-only">Open sidebar</span>
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="flex-1 px-4 flex justify-between">
-        <div class="flex-1 flex">
-          <div class="w-full flex md:ml-0">
-            <div class="relative w-full text-gray-400 focus-within:text-gray-600">
-              <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                <i class="fas fa-search"></i>
-              </div>
-              <input id="search-field" class="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent sm:text-sm" placeholder="Search" type="search" name="search">
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <div class="ml-3 relative">
-            <div class="relative flex items-center">
-              <button class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <span class="sr-only">View notifications</span>
-                <i class="fas fa-bell"></i>
-              </button>
-              
-              <div class="ml-3 relative">
-                <div>
-                  <button class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu" aria-haspopup="true">
-                    <span class="sr-only">Open user menu</span>
-                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                      <span class="text-indigo-800 font-medium">{{ user.username|first|upper }}</span>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main content area -->
-    <main class="flex-1 relative overflow-y-auto focus:outline-none">
-      <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <h1 class="text-2xl font-semibold text-gray-900 mb-6">{% block dashboard_heading %}{% endblock %}</h1>
-          {% block dashboard_content %}{% endblock %}
+    <!-- Page Content -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+      <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+          {% block dashboard_heading %}Dashboard{% endblock %}
+        </h1>
+        <div class="bg-white shadow rounded-xl p-6 border border-gray-100">
+          {% block content %}{% endblock %}
         </div>
       </div>
     </main>
   </div>
 </div>
-{% endblock %}
+
+<!-- Mobile Menu Script -->
+<script>
+  function closeMobileMenu() {
+    document.getElementById('mobile-menu').classList.add('hidden');
+  }
+
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', function (e) {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuButton = e.target.closest('[onclick*="mobile-menu"]');
+    if (!menuButton && !mobileMenu.contains(e.target) && !e.target.closest('#mobile-menu')) {
+      mobileMenu.classList.add('hidden');
+    }
+  });
+</script>
+
+<!-- Optional Animation -->
+<style>
+  .fa-clinic-medical { animation: pulse 3s infinite; }
+  @keyframes pulse { 0% { transform: rotate(0deg); } 50% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
+</style>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
