@@ -49,7 +49,13 @@
           {% for hospital in hospitals %}
           <a href="{% url 'hospital_detail' hospital.id %}" class="hospital-card">
             <div class="card-image">
-              <img src="{{ hospital.image }}" alt="{{ hospital.name }}">
+              {% if hospital.image %}
+                <img src="{{ hospital.image.url }}" alt="{{ hospital.name }}">
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                  <i class="fas fa-hospital text-gray-400 text-4xl"></i>
+                </div>
+              {% endif %}
             </div>
             <div class="card-content">
               <h3 class="card-title">{{ hospital.name }}</h3>
@@ -120,7 +126,7 @@
       hospitalsContainer.innerHTML = filteredHospitals.map(hospital => `
         <a href="/hospital/${hospital.id}/" class="hospital-card">
           <div class="card-image">
-            <img src="${hospital.image}" alt="${hospital.name}">
+            ${hospital.image ? `<img src="${hospital.image}" alt="${hospital.name}">` : `<div class="w-full h-full flex items-center justify-center bg-gray-100"><i class="fas fa-hospital text-gray-400 text-4xl"></i></div>`}
           </div>
           <div class="card-content">
             <h3 class="card-title">${hospital.name}</h3>
