@@ -183,20 +183,20 @@
       // Populate hero section
       const hospitalHero = document.getElementById('hospital-hero');
       hospitalHero.innerHTML = `
-        <div class="h-64 md:h-96 w-full">
-          <img 
-            src="${hospital.image}" 
-            alt="${hospital.name}" 
+        <div class="relative h-48 md:h-64 w-full overflow-hidden rounded-lg shadow-lg">
+          <img
+            src="${hospital.image}"
+            alt="${hospital.name}"
             class="w-full h-full object-cover"
           />
-          <div class="absolute inset-0 bg-black opacity-40"></div>
-        </div>
-        <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
-          <div class="container-custom">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">${hospital.name}</h1>
-            <div class="flex items-center">
-              <i class="fas fa-map-marker-alt mr-2"></i>
-              <span>${hospital.address}, ${hospital.location}</span>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+            <div class="container-custom">
+              <h1 class="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-lg">${hospital.name}</h1>
+              <div class="flex items-center text-white/90 drop-shadow">
+                <i class="fas fa-map-marker-alt mr-2 text-white/80"></i>
+                <span class="text-sm md:text-base">${hospital.address}, ${hospital.location}</span>
+              </div>
             </div>
           </div>
         </div>
