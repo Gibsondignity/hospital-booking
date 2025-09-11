@@ -4,9 +4,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
+from django.db import models
 import json
+import logging
 from datetime import datetime, timedelta
 from dashboard.models import Hospital, Doctor, Appointment, Service
+from .utils import send_appointment_confirmation_sms
+
+logger = logging.getLogger(__name__)
 
 # Helper functions for appointment validation
 def check_pending_appointments(email, phone):
@@ -148,6 +153,52 @@ def get_services(request):
         return JsonResponse(services_list, safe=False)
     return JsonResponse([], safe=False)
 
+def get_booked_times(request):
+    """API endpoint to get booked times for a specific doctor and date"""
+    doctor_id = request.GET.get('doctorId')
+    date = request.GET.get('date')
+    
+    if doctor_id and date:
+        from dashboard.models import BlockedTimeSlot
+        from datetime import datetime
+        
+        # Get all non-cancelled appointments for this doctor and date
+        booked_appointments = Appointment.objects.filter(
+            doctor_id=doctor_id,
+            date=date
+        ).exclude(status='cancelled').values_list('time', flat=True)
+        
+        booked_times = list(booked_appointments)
+        
+        # Get doctor and hospital info
+        try:
+            doctor = Doctor.objects.select_related('hospital').get(id=doctor_id)
+            hospital = doctor.hospital
+            
+            # Get blocked time slots for this doctor and date
+            blocked_slots = BlockedTimeSlot.objects.filter(
+                hospital=hospital,
+                date=date,
+                is_active=True
+            ).filter(
+                models.Q(doctor=doctor) | models.Q(doctor__isnull=True)  # Doctor-specific or all-doctor blocks
+            )
+            
+            # Convert blocked time ranges to individual time slots
+            for blocked_slot in blocked_slots:
+                blocked_times = blocked_slot.get_time_slots()
+                booked_times.extend(blocked_times)
+            
+        except Doctor.DoesNotExist:
+            pass  # If doctor not found, just return appointment-based booked times
+        
+        # Remove duplicates and return
+        unique_booked_times = list(set(booked_times))
+        
+        return JsonResponse(unique_booked_times, safe=False)
+    
+    return JsonResponse([], safe=False)
+
 @csrf_exempt
 def create_appointment(request):
     """Create a new appointment - handles both AJAX and form submissions"""
@@ -176,6 +227,21 @@ def create_appointment(request):
                     messages.error(request, error_message)
                     return redirect('book_appointment')
 
+            # Check if the time slot is already booked
+            existing_appointment = Appointment.objects.filter(
+                doctor_id=data['doctor_id'],
+                date=data['date'],
+                time=data['time']
+            ).exclude(status='cancelled').first()
+            
+            if existing_appointment:
+                error_msg = f"This time slot is already booked. Please select a different time."
+                if request.content_type == 'application/json' or 'application/json' in request.META.get('HTTP_CONTENT_TYPE', ''):
+                    return JsonResponse({'success': False, 'error': error_msg})
+                else:
+                    messages.error(request, error_msg)
+                    return redirect('book_appointment')
+
             appointment = Appointment(
                 full_name=data['full_name'],
                 email=email,
@@ -188,6 +254,17 @@ def create_appointment(request):
                 reason=data['reason']
             )
             appointment.save()
+
+            # Send SMS confirmation after successful appointment creation
+            try:
+                sms_response = send_appointment_confirmation_sms(appointment)
+                if sms_response.get('status') == 'error':
+                    logger.warning(f"Failed to send SMS confirmation for appointment {appointment.id}: {sms_response.get('message')}")
+                else:
+                    logger.info(f"SMS confirmation sent successfully for appointment {appointment.id}")
+            except Exception as sms_error:
+                logger.error(f"Error sending SMS for appointment {appointment.id}: {str(sms_error)}")
+                # Don't fail the appointment creation if SMS fails
 
             # Check if this was an AJAX request
             if request.content_type == 'application/json' or 'application/json' in request.META.get('HTTP_CONTENT_TYPE', ''):
