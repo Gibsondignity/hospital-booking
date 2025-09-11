@@ -170,3 +170,63 @@ class HospitalManagement(models.Model):
 
     def __str__(self):
         return f"{self.action.title()} hospital: {self.hospital}"
+
+
+# Blocked Time Slots Model
+class BlockedTimeSlot(models.Model):
+    """Model to store blocked time slots that cannot be booked"""
+    BLOCK_TYPE_CHOICES = [
+        ('doctor', 'Doctor Unavailable'),
+        ('maintenance', 'Maintenance/Cleaning'),
+        ('emergency', 'Emergency Block'),
+        ('holiday', 'Holiday/Leave'),
+        ('training', 'Staff Training'),
+        ('other', 'Other Reason'),
+    ]
+    
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='blocked_slots')
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='blocked_slots', null=True, blank=True)
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    block_type = models.CharField(max_length=20, choices=BLOCK_TYPE_CHOICES, default='other')
+    reason = models.TextField(blank=True, help_text="Optional reason for blocking")
+    
+    # Who created the block
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='created_blocks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Active status
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        doctor_info = f" - {self.doctor.name}" if self.doctor else " - All Doctors"
+        return f"Blocked: {self.hospital.name}{doctor_info} on {self.date} {self.start_time}-{self.end_time}"
+    
+    def get_time_slots(self):
+        """
+        Return a list of individual 30-minute time slots that are blocked.
+        Converts the start_time to end_time range into specific appointment slots.
+        """
+        from datetime import datetime, timedelta
+        
+        # Convert to datetime objects for manipulation
+        start_dt = datetime.combine(self.date, self.start_time)
+        end_dt = datetime.combine(self.date, self.end_time)
+        
+        # Generate 30-minute slots
+        slots = []
+        current = start_dt
+        while current < end_dt:
+            slots.append(current.time().strftime('%H:%M'))
+            current += timedelta(minutes=30)
+        
+        return slots
+    
+    class Meta:
+        ordering = ['-date', '-start_time']
+        indexes = [
+            models.Index(fields=['hospital', 'date', 'is_active']),
+            models.Index(fields=['doctor', 'date', 'is_active']),
+        ]
