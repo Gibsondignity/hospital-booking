@@ -28,10 +28,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Arkesel SMS API Configuration
+ARKESSEL_API_KEY = os.getenv('ARKESSEL_API_KEY', 'your-api-key-here')  # Replace with actual key or set env var
+ARKESSEL_SENDER_ID = os.getenv('ARKESSEL_SENDER_ID', 'HospitalApp')  # Default sender ID
+
 TAILWIND_APP_NAME = 'theme'
 
 # Custom user model
 AUTH_USER_MODEL = 'accounts.CustomUser'
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Application definition
 
