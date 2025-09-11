@@ -6,8 +6,7 @@ class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'System Admin'),           # Full access
         ('hospital_admin', 'Hospital Admin'), # Manages one hospital
-        ('staff', 'Hospital Staff'),         # Limited access (e.g., reception)
-        ('patient', 'Patient'),              # Regular user
+        ('staff', 'Hospital Staff'),         # Limited access (e.g., reception)              # Regular user
     ]
     
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='patient')
