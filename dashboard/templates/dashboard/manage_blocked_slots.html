@@ -1,0 +1,583 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dashboard_heading %}Manage Blocked Time Slots{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">Time Slot Management</h2>
+      <p class="text-gray-600 mt-1">Block specific time slots to prevent patient bookings during maintenance, holidays, or other unavailable periods.</p>
+    </div>
+    <div class="flex space-x-3">
+      <button onclick="showQuickBlockModal()" 
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+        <i class="fas fa-ban mr-2"></i> Quick Block
+      </button>
+      <button onclick="showAdvancedBlockModal()" 
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-cog mr-2"></i> Advanced Block
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Block Interface -->
+  <div class="bg-white shadow rounded-lg p-6 border border-gray-100">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Block Today -->
+      <div class="border border-gray-200 rounded-lg p-4 hover:border-red-300 transition-colors">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="font-medium text-gray-900">Block Today</h4>
+            <p class="text-sm text-gray-500">Emergency block for today</p>
+          </div>
+          <button onclick="blockToday()" class="text-red-600 hover:text-red-800">
+            <i class="fas fa-ban text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Block Tomorrow -->
+      <div class="border border-gray-200 rounded-lg p-4 hover:border-red-300 transition-colors">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="font-medium text-gray-900">Block Tomorrow</h4>
+            <p class="text-sm text-gray-500">Plan ahead blocking</p>
+          </div>
+          <button onclick="blockTomorrow()" class="text-red-600 hover:text-red-800">
+            <i class="fas fa-ban text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Block Weekend -->
+      <div class="border border-gray-200 rounded-lg p-4 hover:border-red-300 transition-colors">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="font-medium text-gray-900">Block Weekend</h4>
+            <p class="text-sm text-gray-500">Block upcoming weekend</p>
+          </div>
+          <button onclick="blockWeekend()" class="text-red-600 hover:text-red-800">
+            <i class="fas fa-ban text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blocked Slots List -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">Active Blocked Time Slots</h3>
+    </div>
+    {% if blocked_slots %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hospital</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Range</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for blocked_slot in blocked_slots %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ blocked_slot.hospital.name }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {% if blocked_slot.doctor %}
+                  {{ blocked_slot.doctor.name }}
+                {% else %}
+                  <span class="text-red-600 font-medium">All Doctors</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ blocked_slot.date|date:"M d, Y" }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ blocked_slot.start_time|time:"H:i" }} - {{ blocked_slot.end_time|time:"H:i" }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                  {% if blocked_slot.block_type == 'emergency' %}bg-red-100 text-red-800
+                  {% elif blocked_slot.block_type == 'maintenance' %}bg-yellow-100 text-yellow-800
+                  {% elif blocked_slot.block_type == 'holiday' %}bg-blue-100 text-blue-800
+                  {% elif blocked_slot.block_type == 'training' %}bg-purple-100 text-purple-800
+                  {% else %}bg-gray-100 text-gray-800{% endif %}">
+                  {{ blocked_slot.get_block_type_display }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">
+                <div class="max-w-xs truncate" title="{{ blocked_slot.reason }}">
+                  {{ blocked_slot.reason|default:"No reason provided" }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <div>{{ blocked_slot.created_by.get_full_name|default:blocked_slot.created_by.username }}</div>
+                <div class="text-xs text-gray-400">{{ blocked_slot.created_at|date:"M d, Y H:i" }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <form method="post" style="display: inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="delete_block" value="1">
+                  <input type="hidden" name="block_id" value="{{ blocked_slot.id }}">
+                  <button type="submit" class="text-red-600 hover:text-red-900" 
+                          onclick="return confirm('Are you sure you want to remove this blocked time slot?')" 
+                          title="Remove Block">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-12">
+        <i class="fas fa-calendar-times text-gray-300 text-5xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">No blocked time slots</h3>
+        <p class="text-gray-500 mb-4">Create your first blocked time slot to prevent bookings during specific periods.</p>
+        <button onclick="showQuickBlockModal()" 
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+          <i class="fas fa-ban mr-2"></i> Block Your First Time Slot
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Quick Block Modal -->
+<div id="quick-block-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+  <div class="relative top-10 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Quick Block Time Slot</h3>
+        <button onclick="closeAllModals()" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="create_block" value="1">
+        <input type="hidden" name="start_time" value="09:00">
+        <input type="hidden" name="end_time" value="17:00">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Hospital</label>
+            <select name="hospital" id="quick-hospital" required onchange="loadDoctorsForQuickBlock()"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+              {% for hospital in hospitals %}
+              <option value="{{ hospital.id }}">{{ hospital.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Doctor (Optional)</label>
+            <select name="doctor" id="quick-doctor"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+              <option value="">All Doctors</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Date</label>
+            <input type="date" name="date" id="quick-date" required
+                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Block Type</label>
+            <select name="block_type" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+              {% for choice in block_types %}
+              <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Reason</label>
+            <textarea name="reason" rows="2" placeholder="Quick block reason..."
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500"></textarea>
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+          <button type="button" onclick="closeAllModals()"
+                  class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+            Block Full Day
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Advanced Block Modal -->
+<div id="advanced-block-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+  <div class="relative top-10 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Advanced Block Time Slot</h3>
+        <button onclick="closeAllModals()" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="create_block" value="1">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Hospital</label>
+            <select name="hospital" id="advanced-hospital" required onchange="loadDoctorsForAdvancedBlock()"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+              {% for hospital in hospitals %}
+              <option value="{{ hospital.id }}">{{ hospital.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Doctor (Optional - leave empty to block for all doctors)</label>
+            <select name="doctor" id="advanced-doctor"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+              <option value="">All Doctors</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Date</label>
+            <input type="date" name="date" id="advanced-date" required
+                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Start Time</label>
+              <select name="start_time" required
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+                <option value="09:00">09:00</option>
+                <option value="09:30">09:30</option>
+                <option value="10:00">10:00</option>
+                <option value="10:30">10:30</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="14:00">14:00</option>
+                <option value="14:30">14:30</option>
+                <option value="15:00">15:00</option>
+                <option value="15:30">15:30</option>
+                <option value="16:00">16:00</option>
+                <option value="16:30">16:30</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">End Time</label>
+              <select name="end_time" required
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+                <option value="09:30">09:30</option>
+                <option value="10:00">10:00</option>
+                <option value="10:30">10:30</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="12:00">12:00</option>
+                <option value="14:30">14:30</option>
+                <option value="15:00">15:00</option>
+                <option value="15:30">15:30</option>
+                <option value="16:00">16:00</option>
+                <option value="16:30">16:30</option>
+                <option value="17:00">17:00</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Block Type</label>
+            <select name="block_type" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+              {% for choice in block_types %}
+              <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Reason (Optional)</label>
+            <textarea name="reason" rows="3"
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500"
+                      placeholder="Optional reason for blocking this time slot..."></textarea>
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+          <button type="button" onclick="closeAllModals()"
+                  class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-red-600 hover:bg-red-700">
+            Block Time Slot
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Global debug flag
+const DEBUG_BLOCKING = true;
+
+function debugLog(message, data) {
+  if (DEBUG_BLOCKING) {
+    console.log(`[BLOCKING DEBUG] ${message}`, data || '');
+  }
+}
+
+// Modal management
+function showQuickBlockModal() {
+  debugLog('showQuickBlockModal called');
+  const modal = document.getElementById('quick-block-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    loadDoctorsForQuickBlock();
+    setTodayDate('quick-date');
+    debugLog('Quick modal opened successfully');
+  } else {
+    debugLog('ERROR: Quick modal not found');
+  }
+}
+
+function showAdvancedBlockModal() {
+  debugLog('showAdvancedBlockModal called');
+  const modal = document.getElementById('advanced-block-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    loadDoctorsForAdvancedBlock();
+    setTodayDate('advanced-date');
+    debugLog('Advanced modal opened successfully');
+  } else {
+    debugLog('ERROR: Advanced modal not found');
+  }
+}
+
+function closeAllModals() {
+  debugLog('closeAllModals called');
+  const quickModal = document.getElementById('quick-block-modal');
+  const advancedModal = document.getElementById('advanced-block-modal');
+  
+  if (quickModal) quickModal.classList.add('hidden');
+  if (advancedModal) advancedModal.classList.add('hidden');
+  debugLog('All modals closed');
+}
+
+// Quick actions
+function blockToday() {
+  debugLog('blockToday clicked');
+  try {
+    const dateInput = document.getElementById('quick-date');
+    const modal = document.getElementById('quick-block-modal');
+    
+    if (!dateInput) {
+      debugLog('ERROR: quick-date input not found');
+      alert('Error: Date input not found. Please refresh the page.');
+      return;
+    }
+    
+    if (!modal) {
+      debugLog('ERROR: quick-block-modal not found');
+      alert('Error: Modal not found. Please refresh the page.');
+      return;
+    }
+    
+    const todayDate = getTodayDate();
+    dateInput.value = todayDate;
+    modal.classList.remove('hidden');
+    loadDoctorsForQuickBlock();
+    
+    debugLog('Block today completed successfully', { date: todayDate });
+  } catch (error) {
+    debugLog('ERROR in blockToday', error);
+    alert('An error occurred. Please check the console and refresh the page.');
+  }
+}
+
+function blockTomorrow() {
+  debugLog('blockTomorrow clicked');
+  try {
+    const dateInput = document.getElementById('quick-date');
+    const modal = document.getElementById('quick-block-modal');
+    
+    if (!dateInput || !modal) {
+      debugLog('ERROR: Elements not found', { dateInput: !!dateInput, modal: !!modal });
+      alert('Error: Required elements not found. Please refresh the page.');
+      return;
+    }
+    
+    const tomorrowDate = getTomorrowDate();
+    dateInput.value = tomorrowDate;
+    modal.classList.remove('hidden');
+    loadDoctorsForQuickBlock();
+    
+    debugLog('Block tomorrow completed successfully', { date: tomorrowDate });
+  } catch (error) {
+    debugLog('ERROR in blockTomorrow', error);
+    alert('An error occurred. Please check the console and refresh the page.');
+  }
+}
+
+function blockWeekend() {
+  debugLog('blockWeekend clicked');
+  try {
+    const dateInput = document.getElementById('quick-date');
+    const modal = document.getElementById('quick-block-modal');
+    
+    if (!dateInput || !modal) {
+      debugLog('ERROR: Elements not found', { dateInput: !!dateInput, modal: !!modal });
+      alert('Error: Required elements not found. Please refresh the page.');
+      return;
+    }
+    
+    const saturday = getNextSaturday();
+    dateInput.value = saturday;
+    modal.classList.remove('hidden');
+    loadDoctorsForQuickBlock();
+    
+    debugLog('Block weekend completed successfully', { date: saturday });
+  } catch (error) {
+    debugLog('ERROR in blockWeekend', error);
+    alert('An error occurred. Please check the console and refresh the page.');
+  }
+}
+
+// Date utilities
+function getTodayDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getTomorrowDate() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split('T')[0];
+}
+
+function getNextSaturday() {
+  const today = new Date();
+  const daysUntilSaturday = (6 - today.getDay()) % 7;
+  const saturday = new Date(today);
+  saturday.setDate(today.getDate() + daysUntilSaturday + (daysUntilSaturday === 0 ? 7 : 0));
+  return saturday.toISOString().split('T')[0];
+}
+
+function setTodayDate(inputId) {
+  const dateInput = document.getElementById(inputId);
+  if (dateInput && !dateInput.value) {
+    dateInput.value = getTodayDate();
+  }
+}
+
+// Doctor loading functions
+async function loadDoctorsForQuickBlock() {
+  const hospitalId = document.getElementById('quick-hospital').value;
+  const doctorSelect = document.getElementById('quick-doctor');
+  await loadDoctorsForSelect(hospitalId, doctorSelect);
+}
+
+async function loadDoctorsForAdvancedBlock() {
+  const hospitalId = document.getElementById('advanced-hospital').value;
+  const doctorSelect = document.getElementById('advanced-doctor');
+  await loadDoctorsForSelect(hospitalId, doctorSelect);
+}
+
+async function loadDoctorsForSelect(hospitalId, doctorSelect) {
+  // Clear existing options
+  doctorSelect.innerHTML = '<option value="">All Doctors</option>';
+  
+  if (hospitalId) {
+    try {
+      const response = await fetch(`/api/doctors/?hospitalId=${hospitalId}`);
+      const doctors = await response.json();
+      
+      doctors.forEach(doctor => {
+        const option = document.createElement('option');
+        option.value = doctor.id;
+        option.textContent = doctor.name;
+        doctorSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Error loading doctors:', error);
+    }
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  debugLog('DOM Content Loaded - Initializing page');
+  
+  // Check if all required elements exist
+  const requiredElements = [
+    'quick-block-modal',
+    'advanced-block-modal',
+    'quick-date',
+    'advanced-date',
+    'quick-hospital',
+    'advanced-hospital',
+    'quick-doctor',
+    'advanced-doctor'
+  ];
+  
+  const missingElements = [];
+  requiredElements.forEach(id => {
+    if (!document.getElementById(id)) {
+      missingElements.push(id);
+    }
+  });
+  
+  if (missingElements.length > 0) {
+    debugLog('ERROR: Missing elements', missingElements);
+  } else {
+    debugLog('All required elements found');
+  }
+  
+  // Set minimum dates to today
+  const dateInputs = document.querySelectorAll('input[type="date"]');
+  const today = getTodayDate();
+  dateInputs.forEach(input => {
+    input.min = today;
+  });
+  debugLog('Date minimums set', { today, dateInputsFound: dateInputs.length });
+
+  // Load doctors for first hospital if available
+  setTimeout(() => {
+    loadDoctorsForQuickBlock();
+    loadDoctorsForAdvancedBlock();
+  }, 100);
+  
+  debugLog('Initialization completed');
+});
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+  const quickModal = document.getElementById('quick-block-modal');
+  const advancedModal = document.getElementById('advanced-block-modal');
+  
+  if (e.target === quickModal || e.target === advancedModal) {
+    closeAllModals();
+  }
+});
+</script>
+{% endblock %}
