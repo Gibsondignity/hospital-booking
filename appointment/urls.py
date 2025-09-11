@@ -13,5 +13,6 @@ urlpatterns = [
     path('api/hospitals/', views.get_hospitals, name='get_hospitals'),
     path('api/doctors/', views.get_doctors, name='get_doctors'),
     path('api/services/', views.get_services, name='get_services'),
+    path('api/booked-times/', views.get_booked_times, name='get_booked_times'),
     path('api/appointments/', views.create_appointment, name='create_appointment'),
 ]
