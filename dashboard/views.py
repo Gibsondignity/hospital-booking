@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import models
 from accounts.models import CustomUser
-from .models import Booking, DoctorManagement, HospitalManagement, Hospital, Doctor, Appointment, Service
+from .models import Booking, DoctorManagement, HospitalManagement, Hospital, Doctor, Appointment, Service, BlockedTimeSlot
 from .forms import HospitalForm, DoctorForm, ServiceForm
 from django.contrib.auth.forms import UserCreationForm
 
@@ -12,11 +13,14 @@ def dashboard(request):
     user = request.user
 
     # Get user's appointments based on role
-    if user.role in ['admin', 'hospital_admin', 'staff'] and user.hospital:
+    if user.role == 'admin':
+        # System admin can see all appointments
+        user_appointments = Appointment.objects.all().order_by('-created_at')[:10]
+        appointments_count = Appointment.objects.all().count()
+    elif user.role in ['hospital_admin', 'staff'] and user.hospital:
         # Hospital staff can see all appointments for their hospital
         user_appointments = Appointment.objects.filter(hospital=user.hospital).order_by('-created_at')[:10]
         appointments_count = Appointment.objects.filter(hospital=user.hospital).count()
-        # hospital.appointments.filter(status="confirmed").count
     else:
         # Patients can only see their own appointments
         user_appointments = Appointment.objects.filter(email=user.email).order_by('-created_at')[:10]
@@ -97,29 +101,107 @@ def dashboard(request):
 
     return render(request, 'dashboard/dashboard.html', context)
 
-# @login_required
+@login_required
 def manage_bookings(request):
     """View for managing bookings"""
-    bookings = Booking.objects.filter(user=request.user).order_by('-booking_date')
-    return render(request, 'dashboard/manage_bookings.html', {'bookings': bookings})
+    user = request.user
+    
+    # Handle appointment status changes (for staff roles)
+    if request.method == 'POST' and user.role in ['admin', 'hospital_admin', 'staff']:
+        action = request.POST.get('action')
+        appointment_id = request.POST.get('appointment_id')
+        
+        if appointment_id and action:
+            try:
+                appointment = Appointment.objects.get(id=appointment_id)
+                
+                # Check if user has permission to manage this appointment
+                if user.role == 'admin' or (user.hospital and appointment.hospital == user.hospital):
+                    if action == 'confirm':
+                        appointment.status = 'confirmed'
+                        appointment.save()
+                        messages.success(request, f'Appointment for {appointment.full_name} has been confirmed.')
+                    elif action == 'cancel':
+                        appointment.status = 'cancelled'
+                        appointment.save()
+                        messages.success(request, f'Appointment for {appointment.full_name} has been cancelled.')
+                else:
+                    messages.error(request, 'You do not have permission to manage this appointment.')
+            except Appointment.DoesNotExist:
+                messages.error(request, 'Appointment not found.')
+        
+        return redirect('manage_bookings')
+    
+    # Get appointments based on user role (staff manage appointments, not just bookings)
+    if user.role == 'admin':
+        # System admin sees all appointments
+        appointments = Appointment.objects.all().order_by('-created_at')
+    elif user.role in ['hospital_admin', 'staff'] and user.hospital:
+        # Hospital admin and staff see appointments for their hospital
+        appointments = Appointment.objects.filter(hospital=user.hospital).order_by('-created_at')
+    else:
+        # Patients see only their own bookings (actual Booking objects)
+        bookings = Booking.objects.filter(user=user).order_by('-booking_date')
+        appointments = [booking.appointment for booking in bookings]
+    
+    context = {
+        'appointments': appointments,
+        'user_role': user.role,
+        'user_hospital': user.hospital,
+    }
+    
+    return render(request, 'dashboard/manage_bookings.html', context)
 
 @login_required
 def view_appointments(request):
     """View for viewing appointments (Main Admin, Hospital Admin, Staff)"""
-    if request.user.role == 'admin':
+    user = request.user
+    
+    # Handle appointment status changes (for staff roles)
+    if request.method == 'POST' and user.role in ['admin', 'hospital_admin', 'staff']:
+        action = request.POST.get('action')
+        appointment_id = request.POST.get('appointment_id')
+        
+        if appointment_id and action:
+            try:
+                appointment = Appointment.objects.get(id=appointment_id)
+                
+                # Check if user has permission to manage this appointment
+                if user.role == 'admin' or (user.hospital and appointment.hospital == user.hospital):
+                    if action == 'confirm':
+                        appointment.status = 'confirmed'
+                        appointment.save()
+                        messages.success(request, f'Appointment for {appointment.full_name} has been confirmed.')
+                    elif action == 'cancel':
+                        appointment.status = 'cancelled'
+                        appointment.save()
+                        messages.success(request, f'Appointment for {appointment.full_name} has been cancelled.')
+                    elif action == 'complete':
+                        appointment.status = 'completed'
+                        appointment.save()
+                        messages.success(request, f'Appointment for {appointment.full_name} has been marked as completed.')
+                else:
+                    messages.error(request, 'You do not have permission to manage this appointment.')
+            except Appointment.DoesNotExist:
+                messages.error(request, 'Appointment not found.')
+        
+        return redirect('view_appointments')
+    
+    # Get appointments based on user role
+    if user.role == 'admin':
         # System admin can view all appointments
         appointments = Appointment.objects.all().order_by('-created_at')
-    elif request.user.role in ['hospital_admin', 'staff'] and request.user.hospital:
+    elif user.role in ['hospital_admin', 'staff'] and user.hospital:
         # Hospital admin and staff can view appointments for their hospital
-        appointments = Appointment.objects.filter(hospital=request.user.hospital).order_by('-created_at')
+        appointments = Appointment.objects.filter(hospital=user.hospital).order_by('-created_at')
     else:
         # Patients cannot access this page
         return render(request, 'dashboard/access_denied.html')
 
     context = {
         'appointments': appointments,
-        'user_role': request.user.role,
-        'user_hospital': request.user.hospital,
+        'user_role': user.role,
+        'user_hospital': user.hospital,
     }
     
     return render(request, 'dashboard/view_appointments.html', context)
@@ -380,6 +462,38 @@ def manage_users(request):
     if request.user.role not in ['admin', 'hospital_admin']:
         return render(request, 'dashboard/access_denied.html')
 
+    # Handle user creation
+    if request.method == 'POST' and 'create_user' in request.POST:
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        role = request.POST.get('role')
+        hospital_id = request.POST.get('hospital')
+
+        try:
+            # Create new user
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                role=role
+            )
+            
+            # Assign hospital if needed
+            if role in ['hospital_admin', 'staff'] and hospital_id:
+                user.hospital = Hospital.objects.get(id=hospital_id)
+                user.save()
+            
+            messages.success(request, f'User {username} has been created successfully!')
+        except Exception as e:
+            messages.error(request, f'Error creating user: {str(e)}')
+        
+        return redirect('manage_users')
+
     # Handle role and hospital assignment
     if request.method == 'POST' and 'update_user' in request.POST:
         user_id = request.POST.get('user_id')
@@ -415,19 +529,122 @@ def manage_users(request):
         # Main Admin can see all users except themselves
         users = CustomUser.objects.exclude(id=request.user.id).order_by('username')
     elif request.user.role == 'hospital_admin' and request.user.hospital:
-        # Hospital Admin can only see staff users for their hospital
+        # Hospital Admin can see all users in their hospital and unassigned staff/patients
         users = CustomUser.objects.filter(
-            hospital=request.user.hospital,
-            role__in=['staff']
+            models.Q(hospital=request.user.hospital) |
+            models.Q(hospital__isnull=True, role__in=['staff', 'patient'])
         ).exclude(id=request.user.id).order_by('username')
     else:
         users = CustomUser.objects.none()
 
+    # Filter available hospitals and roles based on current user's role
+    if request.user.role == 'admin':
+        available_hospitals = Hospital.objects.all()
+        available_roles = CustomUser.ROLE_CHOICES
+    elif request.user.role == 'hospital_admin' and request.user.hospital:
+        available_hospitals = Hospital.objects.filter(id=request.user.hospital.id)
+        # Hospital admin can only create staff and manage patients
+        available_roles = [
+            ('staff', 'Hospital Staff'),
+            ('patient', 'Patient'),
+        ]
+    else:
+        available_hospitals = Hospital.objects.none()
+        available_roles = []
+
     context = {
         'users': users,
-        'hospitals': Hospital.objects.all(),
-        'role_choices': CustomUser.ROLE_CHOICES,
+        'hospitals': available_hospitals,
+        'role_choices': available_roles,
         'user_role': request.user.role,
+        'user_hospital': request.user.hospital,
     }
 
     return render(request, 'dashboard/manage_users.html', context)
+
+@login_required
+def manage_blocked_slots(request):
+    """View for managing blocked time slots (Hospital Admin & Staff)"""
+    user = request.user
+    
+    # Role-based access control
+    if user.role not in ['admin', 'hospital_admin', 'staff']:
+        return render(request, 'dashboard/access_denied.html')
+    
+    # Handle creating new blocked slot
+    if request.method == 'POST' and 'create_block' in request.POST:
+        try:
+            hospital_id = request.POST.get('hospital')
+            doctor_id = request.POST.get('doctor')
+            date = request.POST.get('date')
+            start_time = request.POST.get('start_time')
+            end_time = request.POST.get('end_time')
+            block_type = request.POST.get('block_type')
+            reason = request.POST.get('reason', '')
+
+            # Validate permissions
+            if user.role in ['hospital_admin', 'staff'] and user.hospital:
+                if int(hospital_id) != user.hospital.id:
+                    messages.error(request, 'You can only block slots for your hospital.')
+                    return redirect('manage_blocked_slots')
+
+            blocked_slot = BlockedTimeSlot.objects.create(
+                hospital_id=hospital_id,
+                doctor_id=doctor_id if doctor_id else None,
+                date=date,
+                start_time=start_time,
+                end_time=end_time,
+                block_type=block_type,
+                reason=reason,
+                created_by=user
+            )
+            
+            doctor_name = blocked_slot.doctor.name if blocked_slot.doctor else "All Doctors"
+            messages.success(request, f'Time slot blocked successfully for {doctor_name} on {date}')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating blocked slot: {str(e)}')
+        
+        return redirect('manage_blocked_slots')
+    
+    # Handle deleting blocked slot
+    if request.method == 'POST' and 'delete_block' in request.POST:
+        block_id = request.POST.get('block_id')
+        try:
+            blocked_slot = get_object_or_404(BlockedTimeSlot, id=block_id)
+            
+            # Check permissions
+            if user.role in ['hospital_admin', 'staff'] and user.hospital:
+                if blocked_slot.hospital != user.hospital:
+                    messages.error(request, 'You can only delete blocks for your hospital.')
+                    return redirect('manage_blocked_slots')
+            
+            doctor_name = blocked_slot.doctor.name if blocked_slot.doctor else "All Doctors"
+            blocked_slot.delete()
+            messages.success(request, f'Blocked slot removed for {doctor_name}')
+            
+        except Exception as e:
+            messages.error(request, f'Error deleting blocked slot: {str(e)}')
+        
+        return redirect('manage_blocked_slots')
+    
+    # Get blocked slots based on user role
+    if user.role == 'admin':
+        blocked_slots = BlockedTimeSlot.objects.select_related('hospital', 'doctor', 'created_by').all()
+        hospitals_queryset = Hospital.objects.all()
+    elif user.role in ['hospital_admin', 'staff'] and user.hospital:
+        blocked_slots = BlockedTimeSlot.objects.select_related('hospital', 'doctor', 'created_by').filter(hospital=user.hospital)
+        hospitals_queryset = Hospital.objects.filter(id=user.hospital.id)
+    else:
+        blocked_slots = BlockedTimeSlot.objects.none()
+        hospitals_queryset = Hospital.objects.none()
+
+    context = {
+        'blocked_slots': blocked_slots.order_by('-created_at'),
+        'hospitals': hospitals_queryset,
+        'block_types': BlockedTimeSlot.BLOCK_TYPE_CHOICES,
+        'user_role': user.role,
+        'user_hospital': user.hospital,
+    }
+    
+    return render(request, 'dashboard/manage_blocked_slots.html', context)
