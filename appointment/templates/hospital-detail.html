@@ -6,43 +6,46 @@
 
 {% block content %}
     <!-- Hero Section with Hospital Image -->
-    <section class="relative py-6 md:py-10">
-      <!-- Hero Image with Overlay -->
-      <div class="relative h-[50vh] max-h-96 md:max-h-none w-full overflow-hidden rounded-xl shadow-2xl max-w-6xl mx-auto">
+    <section class="relative overflow-hidden py-6 md:py-12 lg:py-20">
+      <div class="absolute inset-0 z-0">
         {% if hospital.image %}
           <img
             src="{{ hospital.image.url }}"
             alt="{{ hospital.name }}"
-            class="w-full h-full object-cover"
+            class="w-full h-screen md:h-[70vh] object-cover transition-transform duration-1000 hover:scale-105"
+            loading="lazy"
           />
         {% else %}
-          <div class="w-full h-full bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center">
-            <i class="fas fa-hospital text-blue-300 text-6xl"></i>
+          <div class="w-full h-full bg-gradient-to-br from-blue-50 via-teal-50 to-cyan-100 flex items-center justify-center">
+            <i class="fas fa-hospital text-blue-400 text-8xl opacity-60"></i>
           </div>
         {% endif %}
-    
-        <!-- Gradient Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-    
-        <!-- Hospital Info Overlay -->
-        <div class="absolute bottom-0 left-0 right-0 p-6">
-          <div class="max-w-4xl mx-auto">
-            <h1 class="text-2xl md:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">{{ hospital.name }}</h1>
-            <div class="flex flex-col md:flex-row md:items-center gap-2 text-white/90 text-sm md:text-base drop-shadow">
-              <div class="flex items-center">
-                <i class="fas fa-map-marker-alt mr-2 text-green-300"></i>
-                <span>{{ hospital.address }}, {{ hospital.location }}</span>
-              </div>
-              {% if hospital.rating %}
-                <div class="flex items-center mt-1 md:mt-0">
-                  <i class="fas fa-star text-yellow-300 mr-1"></i>
-                  <span>{{ hospital.rating }} ({{ hospital.review_count }} reviews)</span>
-                </div>
-              {% endif %}
-            </div>
+      </div>
+  
+      <!-- Dark Overlay with Gradient -->
+      <div class="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+  
+      <!-- Centered Content with Animation -->
+      <div class="relative z-20 flex flex-col items-center justify-end px-6 pb-12 md:pb-20 text-center">
+        <h1 class="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 tracking-tight leading-tight drop-shadow-lg animate-fade-in-up">
+          {{ hospital.name }}
+        </h1>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-6 text-white/90 text-sm md:text-base max-w-3xl mx-auto animate-fade-in-up delay-200">
+          <div class="flex items-center">
+            <i class="fas fa-map-marker-alt mr-2 text-green-300"></i>
+            <span>{{ hospital.address }}, {{ hospital.location }}</span>
           </div>
+          {% if hospital.rating %}
+            <div class="flex items-center">
+              <i class="fas fa-star text-yellow-300 mr-1"></i>
+              <span class="font-medium">{{ hospital.rating }} ({{ hospital.review_count }} reviews)</span>
+            </div>
+          {% endif %}
         </div>
       </div>
+  
+      <!-- Decorative Bottom Wave -->
+      <div class="absolute bottom-0 left-0 w-full h-16 md:h-24 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
     </section>
     
     <!-- Hospital Info Section -->
