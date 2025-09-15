@@ -242,7 +242,7 @@ def manage_doctors(request):
     if request.method == 'POST' and 'edit_doctor' in request.POST:
         doctor_id = request.POST.get('doctor_id')
         doctor = get_object_or_404(Doctor, id=doctor_id)
-        form = DoctorForm(request.POST, instance=doctor)
+        form = DoctorForm(request.POST, request.FILES, instance=doctor)
         if form.is_valid():
             doctor = form.save()
             # Log the management activity
@@ -255,7 +255,7 @@ def manage_doctors(request):
             messages.success(request, f'Doctor {doctor.name} has been updated successfully!')
             return redirect('manage_doctors')
     elif request.method == 'POST':
-        form = DoctorForm(request.POST)
+        form = DoctorForm(request.POST, request.FILES)
         if form.is_valid():
             doctor = form.save()
             # Log the management activity
@@ -339,7 +339,7 @@ def manage_hospitals(request):
     if request.method == 'POST' and 'edit_hospital' in request.POST:
         hospital_id = request.POST.get('hospital_id')
         hospital = get_object_or_404(Hospital, id=hospital_id)
-        form = HospitalForm(request.POST, instance=hospital)
+        form = HospitalForm(request.POST, request.FILES, instance=hospital)
         if form.is_valid():
             hospital = form.save()
             # Log the management activity
@@ -352,7 +352,7 @@ def manage_hospitals(request):
             messages.success(request, f'Hospital {hospital.name} has been updated successfully!')
             return redirect('manage_hospitals')
     elif request.method == 'POST':
-        form = HospitalForm(request.POST)
+        form = HospitalForm(request.POST, request.FILES)
         if form.is_valid():
             hospital = form.save()
             # Log the management activity
