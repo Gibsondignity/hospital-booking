@@ -3,10 +3,10 @@ from .models import Hospital, Doctor, Service
 
 class HospitalForm(forms.ModelForm):
     """Form for creating and updating hospitals"""
-    
+
     class Meta:
         model = Hospital
-        fields = ['name', 'address', 'location', 'description', 'phone_number', 'email']
+        fields = ['name', 'address', 'location', 'description', 'phone_number', 'email', 'image']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'input'}),
             'address': forms.TextInput(attrs={'class': 'input'}),
@@ -14,6 +14,7 @@ class HospitalForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'textarea', 'rows': 4}),
             'phone_number': forms.TextInput(attrs={'class': 'input'}),
             'email': forms.EmailInput(attrs={'class': 'input'}),
+            'image': forms.FileInput(attrs={'class': 'input'}),
         }
 
 class DoctorForm(forms.ModelForm):
@@ -21,7 +22,7 @@ class DoctorForm(forms.ModelForm):
 
     class Meta:
         model = Doctor
-        fields = ['name', 'specialty', 'title', 'hospital', 'bio', 'education', 'experience_years']
+        fields = ['name', 'specialty', 'title', 'hospital', 'bio', 'education', 'experience_years', 'image']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'input'}),
             'specialty': forms.TextInput(attrs={'class': 'input'}),
@@ -30,6 +31,7 @@ class DoctorForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'class': 'textarea', 'rows': 4}),
             'education': forms.TextInput(attrs={'class': 'input'}),
             'experience_years': forms.NumberInput(attrs={'class': 'input'}),
+            'image': forms.FileInput(attrs={'class': 'input'}),
         }
 
 class ServiceForm(forms.ModelForm):
