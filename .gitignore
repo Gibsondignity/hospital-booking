@@ -1,1 +1,28 @@
-.venv
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments and secrets
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Django
+media/
+staticfiles/
+
+# Frontend
+node_modules/
+theme/static_src/node_modules/
+
+# Editors and operating systems
+.DS_Store
+.vscode/
+.idea/
