@@ -1,47 +1,46 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
+from clinic.auth import clinic_permission_required
+from clinic.services import log_event
 
-def register(request):
-    """View for user registration"""
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!')
-            login(request, user)
-            return redirect('index')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'accounts/register.html', {'form': form})
+from .forms import CustomAuthenticationForm, StaffUserCreationForm
+from .models import CustomUser
+
 
 def login_view(request):
-    """View for user login"""
-    if request.method == 'POST':
-        form = CustomAuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.info(request, f'You are now logged in as {username}.')
-                return redirect('dashboard')
-            else:
-                messages.error(request, 'Invalid username or password.')
-        else:
-            messages.error(request, 'Invalid username or password.')
-    else:
-        form = CustomAuthenticationForm()
-    return render(request, 'accounts/login.html', {'form': form})
+    if request.user.is_authenticated:
+        return redirect("dashboard:home")
+    form = CustomAuthenticationForm(request, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        login(request, form.get_user())
+        destination = request.GET.get("next")
+        if destination and url_has_allowed_host_and_scheme(destination, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+            return redirect(destination)
+        return redirect("dashboard:home")
+    return render(request, "accounts/login.html", {"form": form})
+
 
 @login_required
 def profile(request):
-    """View for user profile"""
-    return render(request, 'accounts/profile.html')
+    return render(request, "accounts/profile.html")
 
+
+@clinic_permission_required("accounts.view_customuser")
+def staff_list(request):
+    staff = CustomUser.objects.select_related("staff_profile").order_by("first_name", "last_name")
+    return render(request, "accounts/staff_list.html", {"staff_members": staff})
+
+
+@clinic_permission_required("accounts.add_customuser")
+def staff_create(request):
+    form = StaffUserCreationForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.save()
+        log_event(actor=request.user, action="staff.created", resource=user, metadata={"role": user.role})
+        messages.success(request, "Staff account created successfully.")
+        return redirect("accounts:staff_list")
+    return render(request, "shared/form.html", {"form": form, "page_title": "Add staff member", "submit_label": "Create account"})

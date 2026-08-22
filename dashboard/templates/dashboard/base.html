@@ -1,273 +1,33 @@
 {% load static %}
-{% load tailwind_tags %}<!DOCTYPE html>
-<html lang="en" class="h-full">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}Streamline Care Dashboard{% endblock %}</title>
-  {% tailwind_css %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  {% block extra_css %}{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Eye Clinic{% endblock %} | {{ clinic_configuration.name|default:"Eye Clinic" }}</title>
+  <style>
+    :root{--navy:#10253d;--teal:#087e8b;--teal-soft:#e6f4f5;--paper:#f4f7fa;--line:#dbe4ec;--ink:#183047;--muted:#687b8e;--danger:#bd3643;--white:#fff;--radius:12px}*{box-sizing:border-box}body{margin:0;font:14px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink)}a{color:inherit;text-decoration:none}.layout{min-height:100vh;display:grid;grid-template-columns:246px 1fr}.sidebar{background:var(--navy);color:#d8e3ed;padding:22px 14px;position:sticky;top:0;height:100vh}.brand{padding:0 10px 20px;border-bottom:1px solid #304359}.brand strong{display:block;color:#fff;font-size:17px}.brand span{font-size:12px;color:#aebfd0}.nav{display:grid;gap:4px;padding-top:18px}.nav a{padding:10px 12px;border-radius:9px}.nav a:hover,.nav a.active{background:#203c56;color:#fff}.main{min-width:0;padding:24px 30px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.topbar h1{font-size:22px;margin:0}.muted{color:var(--muted)}.panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:18px}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:20px}.stat strong{display:block;font-size:26px;margin-top:7px}.two-col{grid-template-columns:1fr 1fr}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.toolbar form,.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{display:inline-flex;justify-content:center;align-items:center;border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 13px;border-radius:8px;font-size:13px;cursor:pointer}.btn-primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn-danger{color:var(--danger)}.form-control,select,input,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff;color:var(--ink);font:inherit}.search-input{min-width:280px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid #edf1f5}th{color:var(--muted);font-weight:600;font-size:12px}tbody tr:hover{background:#f9fbfd}.badge{display:inline-block;padding:4px 9px;border-radius:20px;background:var(--teal-soft);color:var(--teal);font-size:12px}.badge.cancelled,.badge.no_show{background:#fcebec;color:var(--danger)}.alert{padding:11px 14px;margin-bottom:12px;border-radius:8px;background:var(--teal-soft)}.alert.error{background:#fcebec;color:var(--danger)}.empty{text-align:center;padding:30px;color:var(--muted)}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}.field .helptext{font-size:12px;color:var(--muted)}.errorlist{color:var(--danger);padding-left:18px;margin:5px 0}.profile-heading{display:flex;justify-content:space-between;gap:16px;align-items:center}.tabs{display:flex;gap:4px;overflow:auto;border-bottom:1px solid var(--line);margin:20px 0 15px}.tabs a{padding:10px 12px;color:var(--muted);white-space:nowrap}.tabs a.active{color:var(--teal);border-bottom:2px solid var(--teal)}.pagination{display:flex;justify-content:space-between;align-items:center;padding-top:14px}.logout{background:none;border:0;color:#d8e3ed;text-align:left;padding:10px 12px;font:inherit;cursor:pointer}.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin-top:15px}.meta strong{display:block}.section-title{font-size:16px;margin:0 0 12px}@media(max-width:860px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto;padding:12px}.brand{padding-bottom:10px}.nav{display:flex;overflow:auto;padding-top:10px}.nav a,.logout{white-space:nowrap}.main{padding:18px 14px}.two-col,.form-grid{grid-template-columns:1fr}.topbar{gap:10px}.toolbar{align-items:flex-start;flex-direction:column}.search-input{min-width:0}.profile-heading{align-items:flex-start;flex-direction:column}}
+  </style>
 </head>
-<body class="h-full bg-gray-50 font-sans">
-
-<!-- Dashboard Layout -->
-<div class="flex h-full min-h-screen">
-  <!-- Sidebar (Desktop) -->
-  <aside class="hidden md:flex md:flex-shrink-0 w-64 lg:w-72">
-    <div class="flex flex-col h-full bg-white shadow-lg border-r border-gray-200">
-      <!-- Logo & Header -->
-      <div class="flex items-center justify-center px-6 py-5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
-        <i class="fas fa-clinic-medical text-2xl mr-3 transform transition-transform duration-300 hover:rotate-12"></i>
-        <span class="text-xl font-bold tracking-wide">Streamline Care</span>
-      </div>
-
-      <!-- Navigation -->
-      <nav class="flex-1 px-4 py-6 overflow-y-auto">
-        <div class="space-y-1">
-          <a href="{% url 'dashboard' %}" 
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'dashboard' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-home mr-3 text-lg"></i>
-            <span>Dashboard</span>
-          </a>
-
-          <a href="{% url 'manage_bookings' %}" 
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'manage_bookings' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-calendar-check mr-3 text-lg"></i>
-            <span>Manage Bookings</span>
-          </a>
-
-          {% if user.role == 'admin' or user.role == 'hospital_admin' or user.role == 'staff' %}
-          <a href="{% url 'manage_doctors' %}"
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'manage_doctors' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-user-md mr-3 text-lg"></i>
-            <span>Manage Doctors</span>
-          </a>
-
-          <a href="{% url 'manage_services' %}"
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'manage_services' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-concierge-bell mr-3 text-lg"></i>
-            <span>Manage Services</span>
-          </a>
-          
-          <a href="{% url 'manage_blocked_slots' %}"
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'manage_blocked_slots' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-ban mr-3 text-lg"></i>
-            <span>Blocked Time Slots</span>
-          </a>
-          {% endif %}
-
-          {% if user.role == 'admin' %}
-          <a href="{% url 'manage_hospitals' %}"
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'manage_hospitals' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-hospital mr-3 text-lg"></i>
-            <span>Manage Hospitals</span>
-          </a>
-          {% endif %}
-
-          {% if user.role == 'admin' or user.role == 'hospital_admin' %}
-          <a href="{% url 'manage_users' %}"
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'manage_users' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-users mr-3 text-lg"></i>
-            <span>Manage Users</span>
-          </a>
-          {% endif %}
-
-          {% comment %} <a href="{% url 'view_appointments' %}"
-             class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    {% if request.resolver_match.url_name == 'view_appointments' %}
-                      bg-indigo-100 text-indigo-800 font-semibold
-                    {% else %}
-                      text-gray-700 hover:bg-indigo-50 hover:text-indigo-700
-                    {% endif %}">
-            <i class="fas fa-calendar-alt mr-3 text-lg"></i>
-            <span>View Appointments</span>
-          </a> {% endcomment %}
-          <a href="{% url 'logout' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'view_appointments' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-            <i class="fas fa-sign-out-alt mr-3"></i> Logout
-          </a>
-        </div>
-      </nav>
-
-      <!-- User Footer -->
-      <div class="p-4 border-t border-gray-100">
-        <div class="flex items-center space-x-3">
-          <div class="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center shadow">
-            <span class="text-white font-bold">{{ user.username|first|upper }}</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 truncate">
-              {{ user.get_full_name|default:user.username }}
-            </p>
-            <p class="text-xs text-gray-500">{{ user.get_role_display }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><strong>{{ clinic_configuration.name|default:"Eye Clinic" }}</strong><span>Clinic management</span></div>
+    <nav class="nav" aria-label="Clinic navigation">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      {% if perms.patients.view_patient %}<a href="{% url 'patients:list' %}">Patients</a>{% endif %}
+      {% if perms.appointment.view_appointment %}<a href="{% url 'appointment:list' %}">Appointments</a>{% endif %}
+      {% if perms.visits.view_visit %}<a href="{% url 'visits:list' %}">Visits</a><a href="{% url 'visits:queue' %}">Waiting queue</a>{% endif %}
+      {% if perms.accounts.view_customuser %}<a href="{% url 'accounts:staff_list' %}">Staff</a>{% endif %}
+      {% if user.is_staff %}<a href="{% url 'admin:index' %}">Administration</a>{% endif %}
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="logout" type="submit">Sign out</button></form>
+    </nav>
   </aside>
-
-  <!-- Mobile Sidebar -->
-  <div id="mobile-menu" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black opacity-50" onclick="closeMobileMenu()"></div>
-    <div class="absolute inset-y-0 left-0 w-64 max-w-xs bg-white shadow-xl transform transition duration-300 ease-in-out">
-      <!-- Mobile Header -->
-      <div class="flex items-center justify-between px-6 py-5 bg-indigo-600 text-white">
-        <span class="text-lg font-bold">Streamline Care</span>
-        <button onclick="closeMobileMenu()" class="text-white">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <!-- Mobile Nav -->
-      <nav class="px-4 py-6 space-y-2">
-        <!-- Same as desktop nav -->
-        <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'dashboard' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-home mr-3"></i> Dashboard
-        </a>
-        <a href="{% url 'manage_bookings' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_bookings' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-calendar-check mr-3"></i> Manage Bookings
-        </a>
-        {% if user.role == 'admin' or user.role == 'hospital_admin' or user.role == 'staff' %}
-        <a href="{% url 'manage_doctors' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_doctors' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-user-md mr-3"></i> Manage Doctors
-        </a>
-        <a href="{% url 'manage_services' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_services' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-concierge-bell mr-3"></i> Manage Services
-        </a>
-        <a href="{% url 'manage_blocked_slots' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_blocked_slots' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-ban mr-3"></i> Blocked Time Slots
-        </a>
-        {% endif %}
-        {% if user.role == 'admin' %}
-        <a href="{% url 'manage_hospitals' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_hospitals' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-hospital mr-3"></i> Manage Hospitals
-        </a>
-        {% endif %}
-        {% if user.role == 'admin' or user.role == 'hospital_admin' %}
-        <a href="{% url 'manage_users' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'manage_users' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-users mr-3"></i> Manage Users
-        </a>
-        {% endif %}
-        {% comment %} <a href="{% url 'view_appointments' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'view_appointments' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-calendar-alt mr-3"></i> View Appointments
-        </a> {% endcomment %}
-        <a href="{% url 'logout' %}" class="flex items-center px-4 py-3 text-sm rounded-xl {% if request.resolver_match.url_name == 'view_appointments' %}bg-indigo-100 text-indigo-800{% else %}text-gray-700 hover:bg-indigo-50{% endif %}">
-          <i class="fas fa-calendar-alt mr-3"></i> Logout
-        </a>
-        
-      </nav>
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="flex-1 flex flex-col overflow-hidden">
-    <!-- Topbar -->
-    <header class="flex-shrink-0 bg-white shadow-sm border-b border-gray-200">
-      <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <!-- Mobile Menu Toggle -->
-        <button type="button" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
-                onclick="document.getElementById('mobile-menu').classList.remove('hidden')">
-          <i class="fas fa-bars text-xl"></i>
-        </button>
-
-        <!-- Search Bar -->
-        <div class="flex-1 max-w-lg mx-auto">
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <i class="fas fa-search text-gray-400"></i>
-            </div>
-            <input type="search" placeholder="Search appointments, doctors..."
-                   class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-gray-900 placeholder-gray-500">
-          </div>
-        </div>
-
-        <!-- Notifications & Profile -->
-        <div class="flex items-center space-x-4">
-          <button class="p-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-100 rounded-full transition">
-            <i class="fas fa-bell"></i>
-          </button>
-          <div class="relative">
-            <button class="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-full">
-              <div class="h-9 w-9 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center shadow">
-                <span class="text-white text-sm font-semibold">{{ user.username|first|upper }}</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Page Content -->
-    <main class="flex-1 overflow-y-auto bg-gray-50">
-      <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6">
-          {% block dashboard_heading %}Dashboard{% endblock %}
-        </h1>
-        <div class="bg-white shadow rounded-xl p-6 border border-gray-100">
-          {% block content %}{% endblock %}
-        </div>
-      </div>
-    </main>
-  </div>
+  <main class="main">
+    <header class="topbar"><div><h1>{% block page_title %}Dashboard{% endblock %}</h1>{% block page_subtitle %}{% endblock %}</div><span class="muted">{{ user.get_full_name|default:user.username }}</span></header>
+    {% if messages %}{% for message in messages %}<div class="alert {{ message.tags }}">{{ message }}</div>{% endfor %}{% endif %}
+    {% block content %}{% endblock %}
+  </main>
 </div>
-
-<!-- Mobile Menu Script -->
-<script>
-  function closeMobileMenu() {
-    document.getElementById('mobile-menu').classList.add('hidden');
-  }
-
-  // Close mobile menu when clicking outside
-  document.addEventListener('click', function (e) {
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuButton = e.target.closest('[onclick*="mobile-menu"]');
-    if (!menuButton && !mobileMenu.contains(e.target) && !e.target.closest('#mobile-menu')) {
-      mobileMenu.classList.add('hidden');
-    }
-  });
-</script>
-
-<!-- Optional Animation -->
-<style>
-  .fa-clinic-medical { animation: pulse 3s infinite; }
-  @keyframes pulse { 0% { transform: rotate(0deg); } 50% { transform: rotate(15deg); } 100% { transform: rotate(0deg); } }
-</style>
-
-{% block extra_js %}{% endblock %}
 </body>
 </html>

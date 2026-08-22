@@ -1,85 +1,49 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
+from clinic.models import StaffProfile
+from clinic.services import next_identifier
+
 from .models import CustomUser
-from django.contrib.auth.forms import AuthenticationForm
 
 
-class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter your email',
-            'autocomplete': 'email'
-        })
-    )
-    phone_number = forms.CharField(
-        max_length=15,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'e.g., +1234567890',
-            'autocomplete': 'tel'
-        })
-    )
-    address = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 3,
-            'placeholder': 'Enter your full address',
-            'autocomplete': 'street-address'
-        })
-    )
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Choose a username',
-            'autocomplete': 'username'
-        })
-    )
-    password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter password',
-            'autocomplete': 'new-password'
-        })
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Confirm password',
-            'autocomplete': 'new-password'
-        })
-    )
+class StyledFormMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            existing = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = f"form-control {existing}".strip()
 
-    class Meta:
+
+class CustomAuthenticationForm(StyledFormMixin, AuthenticationForm):
+    pass
+
+
+class StaffUserCreationForm(StyledFormMixin, UserCreationForm):
+    professional_title = forms.CharField(max_length=80, required=False)
+    registration_number = forms.CharField(max_length=80, required=False)
+    department = forms.CharField(max_length=80, required=False)
+
+    class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = ("username", "email", "phone_number", "address", "password1", "password2")
+        fields = ("username", "first_name", "last_name", "email", "phone", "role")
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("role") in {"optometrist", "ophthalmologist"} and not cleaned_data.get("registration_number"):
+            self.add_error("registration_number", "Clinical practitioners need a registration number.")
+        return cleaned_data
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data["email"]
-        user.phone_number = self.cleaned_data["phone_number"]
-        user.address = self.cleaned_data["address"]
+        user = super().save(commit=commit)
         if commit:
-            user.save()
+            StaffProfile.objects.create(
+                staff_id=next_identifier(key="staff", prefix="STF"),
+                user=user,
+                role=user.role,
+                phone=user.phone,
+                professional_title=self.cleaned_data.get("professional_title", ""),
+                registration_number=self.cleaned_data.get("registration_number", ""),
+                department=self.cleaned_data.get("department", ""),
+            )
         return user
-    
-
-
-
-
-class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500',
-            'placeholder': 'Enter your username',
-        })
-    )
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500',
-            'placeholder': 'Enter your password',
-        })
-    )

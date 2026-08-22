@@ -1,28 +1,35 @@
-from django.db import models
+"""Central authentication and role definitions for clinic staff."""
+
 from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+
+class StaffRole(models.TextChoices):
+    SYSTEM_ADMIN = "system_admin", "System Administrator"
+    CLINIC_ADMIN = "clinic_admin", "Clinic Administrator"
+    OPTOMETRIST = "optometrist", "Optometrist"
+    OPHTHALMOLOGIST = "ophthalmologist", "Ophthalmologist"
+    NURSE = "nurse", "Nurse"
+    RECEPTIONIST = "receptionist", "Receptionist"
+    OPTICIAN = "optician", "Optician"
+    PHARMACIST = "pharmacist", "Pharmacist / Dispensing Staff"
+    ACCOUNTANT = "accountant", "Accountant / Cashier"
 
 
 class CustomUser(AbstractUser):
-    ROLE_CHOICES = [
-        ('admin', 'System Admin'),           # Full access
-        ('hospital_admin', 'Hospital Admin'), # Manages one hospital
-        ('staff', 'Hospital Staff'),         # Limited access (e.g., reception)              # Regular user
-    ]
-    
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='patient')
-    phone = models.CharField(max_length=15, blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
-    
-    # Link to hospital (only for hospital_admin, staff; null for system admin/patient)
-    hospital = models.ForeignKey('dashboard.Hospital', on_delete=models.SET_NULL, null=True, blank=True)
-    
+    """One authenticated identity per staff member."""
+
+    role = models.CharField(max_length=24, choices=StaffRole.choices, default=StaffRole.RECEPTIONIST, db_index=True)
+    phone = models.CharField(max_length=20, blank=True)
+    profile_picture = models.ImageField(upload_to="staff/profiles/", blank=True, null=True)
+
     def __str__(self):
-        return f"{self.username} ({self.get_role_display()})"
+        return self.get_full_name() or self.username
 
     @property
-    def is_hospital_admin(self):
-        return self.role == 'hospital_admin'
+    def is_clinician(self):
+        return self.role in {StaffRole.OPTOMETRIST, StaffRole.OPHTHALMOLOGIST}
 
     @property
-    def is_staff_or_admin(self):
-        return self.role in ['hospital_admin', 'staff']
+    def is_clinic_administrator(self):
+        return self.is_superuser or self.role in {StaffRole.SYSTEM_ADMIN, StaffRole.CLINIC_ADMIN}

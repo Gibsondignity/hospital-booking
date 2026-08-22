@@ -2,14 +2,24 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "unsafe-development-only-key")
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in {"1", "true", "yes"}
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+if not SECRET_KEY:
+    if DEBUG:
+        from django.core.management.utils import get_random_secret_key
+
+        SECRET_KEY = get_random_secret_key()
+    else:
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY must be configured when DEBUG is disabled.")
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()]
 
 ARKESSEL_API_KEY = os.environ.get("ARKESSEL_API_KEY", "")
 ARKESSEL_SENDER_ID = os.environ.get("ARKESSEL_SENDER_ID", "EyeClinic")
+SMS_PROVIDER = os.environ.get("SMS_PROVIDER", "arkesel")
 
 TAILWIND_APP_NAME = "theme"
 AUTH_USER_MODEL = "accounts.CustomUser"
@@ -26,8 +36,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "tailwind",
     "theme",
+    "clinic",
+    "patients",
     "dashboard",
     "appointment",
+    "visits",
     "accounts",
 ]
 if DEBUG:
@@ -52,12 +65,14 @@ TEMPLATES = [{
         BASE_DIR / "accounts" / "templates",
         BASE_DIR / "dashboard" / "templates",
         BASE_DIR / "appointment" / "templates",
+        BASE_DIR / "templates",
     ],
     "APP_DIRS": True,
     "OPTIONS": {"context_processors": [
         "django.template.context_processors.request",
         "django.contrib.auth.context_processors.auth",
         "django.contrib.messages.context_processors.messages",
+        "clinic.context_processors.clinic_configuration",
     ]},
 }]
 WSGI_APPLICATION = "hospital_appoitment.wsgi.application"
@@ -95,4 +110,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_SSL_REDIRECT = os.environ.get("DJANGO_SECURE_SSL_REDIRECT", str(not DEBUG)).lower() in {"1", "true", "yes"}
+SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_SECURE_HSTS_SECONDS", "31536000" if not DEBUG else "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", "False").lower() in {"1", "true", "yes"}
+SECURE_HSTS_PRELOAD = os.environ.get("DJANGO_SECURE_HSTS_PRELOAD", "False").lower() in {"1", "true", "yes"}
 X_FRAME_OPTIONS = "DENY"

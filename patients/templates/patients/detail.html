@@ -1,0 +1,65 @@
+{% extends "dashboard/base.html" %}
+{% block page_title %}Patient profile{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="profile-heading">
+    <div><h2 style="margin:0">{{ patient.full_name }}</h2><span class="muted">{{ patient.patient_number }}</span></div>
+    <div class="actions">
+      {% if perms.patients.change_patient %}<a class="btn" href="{% url 'patients:update' patient.pk %}">Edit details</a>{% endif %}
+      {% if perms.appointment.add_appointment %}<a class="btn btn-primary" href="{% url 'appointment:create' %}?patient={{ patient.pk }}">Book appointment</a>{% endif %}
+    </div>
+  </div>
+  <div class="meta">
+    <div><span class="muted">Age</span><strong>{{ patient.age }} years</strong></div>
+    <div><span class="muted">Gender</span><strong>{{ patient.get_gender_display }}</strong></div>
+    <div><span class="muted">Phone</span><strong>{{ patient.phone }}</strong></div>
+    <div><span class="muted">Status</span><strong>{% if patient.is_active %}Active{% else %}Inactive{% endif %}</strong></div>
+    <div><span class="muted">Last visit</span><strong>{% if last_visit %}{{ last_visit.checked_in_at|date:"d M Y" }}{% else %}No visits{% endif %}</strong></div>
+    <div><span class="muted">Next appointment</span><strong>{% if upcoming_appointment %}{{ upcoming_appointment.appointment_date|date:"d M Y" }}{% else %}Not scheduled{% endif %}</strong></div>
+  </div>
+  <nav class="tabs" aria-label="Patient history sections">
+    <a class="{% if active_tab == 'overview' %}active{% endif %}" href="?tab=overview">Overview</a>
+    <a class="{% if active_tab == 'visits' %}active{% endif %}" href="?tab=visits">Visits</a>
+    <a class="{% if active_tab == 'appointments' %}active{% endif %}" href="?tab=appointments">Appointments</a>
+    <a class="{% if active_tab == 'examinations' %}active{% endif %}" href="?tab=examinations">Eye examinations</a>
+    <a class="{% if active_tab == 'prescriptions' %}active{% endif %}" href="?tab=prescriptions">Prescriptions</a>
+    <a class="{% if active_tab == 'glasses' %}active{% endif %}" href="?tab=glasses">Glasses</a>
+    <a class="{% if active_tab == 'medications' %}active{% endif %}" href="?tab=medications">Medications</a>
+    <a class="{% if active_tab == 'billing' %}active{% endif %}" href="?tab=billing">Billing</a>
+    <a class="{% if active_tab == 'payments' %}active{% endif %}" href="?tab=payments">Payments</a>
+    <a class="{% if active_tab == 'documents' %}active{% endif %}" href="?tab=documents">Documents</a>
+    <a class="{% if active_tab == 'notifications' %}active{% endif %}" href="?tab=notifications">Notifications</a>
+  </nav>
+  {% if active_tab == 'overview' %}
+    <div class="grid two-col">
+      <div>
+        <h3 class="section-title">Contact information</h3>
+        <p>{{ patient.address|default:"No address recorded" }}{% if patient.city %}, {{ patient.city }}{% endif %}</p>
+        <p>{{ patient.email|default:"No email recorded" }}</p>
+        <h3 class="section-title">Emergency contact</h3>
+        <p>{{ patient.emergency_contact_name|default:"Not recorded" }}{% if patient.emergency_contact_phone %} · {{ patient.emergency_contact_phone }}{% endif %}</p>
+      </div>
+      {% if perms.patients.view_sensitive_history %}
+      <div>
+        <h3 class="section-title">Medical history</h3>
+        {% if medical_history %}
+          <p><strong>Allergies:</strong> {{ medical_history.allergies|default:"None recorded" }}</p>
+          <p><strong>Conditions:</strong> {{ medical_history.existing_conditions|default:"None recorded" }}</p>
+        {% else %}<p class="muted">No medical history recorded.</p>{% endif %}
+        {% if perms.patients.change_patientmedicalhistory %}<a class="btn" href="{% url 'patients:medical_history' patient.pk %}">Update medical history</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  {% elif active_tab == 'visits' %}
+    <div class="table-wrap"><table><thead><tr><th>Visit</th><th>Date</th><th>Practitioner</th><th>Status</th></tr></thead><tbody>
+      {% for visit in visits %}<tr><td>{{ visit.visit_number }}</td><td>{{ visit.checked_in_at|date:"d M Y H:i" }}</td><td>{{ visit.practitioner|default:"Unassigned" }}</td><td>{{ visit.get_status_display }}</td></tr>
+      {% empty %}<tr><td colspan="4" class="empty">No visits recorded.</td></tr>{% endfor %}
+    </tbody></table></div>
+  {% elif active_tab == 'appointments' %}
+    <div class="table-wrap"><table><thead><tr><th>Reference</th><th>Date</th><th>Type</th><th>Status</th></tr></thead><tbody>
+      {% for appointment in appointments %}<tr><td>{{ appointment.reference }}</td><td>{{ appointment.appointment_date|date:"d M Y" }} {{ appointment.appointment_time|time:"H:i" }}</td><td>{{ appointment.get_appointment_type_display }}</td><td>{{ appointment.get_status_display }}</td></tr>
+      {% empty %}<tr><td colspan="4" class="empty">No appointments recorded.</td></tr>{% endfor %}
+    </tbody></table></div>
+  {% else %}<p class="empty">This section will become available when its clinic module is implemented.</p>{% endif %}
+</section>
+{% endblock %}
